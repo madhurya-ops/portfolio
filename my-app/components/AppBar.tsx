@@ -46,8 +46,8 @@ const dockItems = [
     icon: <LinkedinIcon className="text-white"/>,
   },
   {
-    name: "Projects",
-    href: "/projects",
+    name: "Craft",
+    href: "/craft",
     icon: <RocketIcon className="text-white"/>,
   },
   {
