@@ -2,6 +2,8 @@ import React from "react";
 import { Boxes } from "@/components/Boxes";
 import { cn } from "@/lib/utils";
 import { HomeDock } from "@/components/AppBar";
+import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 
 // Overlay for the radial mask effect
 const LandingOverlay = () => (
@@ -14,16 +16,15 @@ const LandingHeading = () => (
     className={cn(
       "md:text-4xl text-xl text-white relative z-20 font-semibold"
     )}
-    style={{ fontFamily: 'inherit' }}
   >
-    Tailwind is Awesome
+    Hi, I'm Madhurya!
   </h1>
 );
 
 // Subheading/description
 const LandingSubheading = () => (
-  <p className="text-center mt-2 text-neutral-300 relative z-20" style={{ fontFamily: 'inherit' }}>
-    Framer motion is the best animation library ngl
+  <p className="text-center mt-2 text-neutral-300 relative z-20">
+    A true chaos engineer ngl
   </p>
 );
 
@@ -31,12 +32,27 @@ const LandingSubheading = () => (
 export const LandingPage = () => (
   <div
     className="h-96 relative w-full overflow-hidden bg-neutral-600 flex flex-col items-center justify-center rounded-lg min-h-screen"
-    style={{ fontFamily: '"-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif' }}
   >
     <LandingOverlay />
     <Boxes />
-    <LandingHeading />
-    <LandingSubheading />
+    {/* Demo BentoCard with all required props */}
+    <BentoCard
+      name="Hi, I'm Madhurya!"
+      className="max-w-md mx-auto bg-white"
+      background={null}
+      Icon={ArrowRightIcon}
+      description={
+        <>
+          <LandingHeading />
+          <LandingSubheading />
+        </>
+      }
+      href="#"
+      cta="Learn More"
+      style={{
+        transform: `translate(-40%,-60%) skewX(-48deg) skewY(14deg) scale(1.4) rotate(0deg) translateZ(0)`
+      }}
+    />
     <HomeDock />
   </div>
 );
