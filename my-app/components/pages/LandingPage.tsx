@@ -1,6 +1,7 @@
 import React from "react";
 import { Boxes } from "@/components/Boxes";
 import { cn } from "@/lib/utils";
+import { HomeDock } from "@/components/AppBar";
 
 // Overlay for the radial mask effect
 const LandingOverlay = () => (
@@ -36,6 +37,7 @@ export const LandingPage = () => (
     <Boxes />
     <LandingHeading />
     <LandingSubheading />
+    <HomeDock />
   </div>
 );
 
