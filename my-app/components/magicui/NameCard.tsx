@@ -1,125 +1,169 @@
-import { ArrowRightIcon } from "@radix-ui/react-icons";
-import { ComponentPropsWithoutRef, ReactNode } from "react";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import type React from "react"
 
-interface BentoGridProps extends ComponentPropsWithoutRef<"div"> {
-  children: ReactNode;
-  className?: string;
-}
+import { useState, useEffect, useRef } from "react"
 
-/**
- * BentoCard Component
- * 
- * A simple name card component that displays a name and description.
- * 
- * @prop {string} name - The main title (name) to display
- * @prop {string} description - The description text to display below the name
- * @prop {string} [className] - Additional CSS classes to apply to the card
- * @prop {'sm' | 'md' | 'lg' | 'xl'} [size='md'] - Size variant of the card
- */
-interface BentoCardProps extends ComponentPropsWithoutRef<"div"> {
-  name: string;
-  description: string;
-  className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-}
+export default function NameCard() {
+  const [currentWord, setCurrentWord] = useState("backend")
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [isHovered, setIsHovered] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
 
-const BentoGrid = ({ children, className, ...props }: BentoGridProps) => {
-  return (
-    <div
-      className={cn(
-        "grid w-full auto-rows-[22rem] grid-cols-3 gap-4",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-};
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsAnimating(true)
+      setTimeout(() => {
+        setCurrentWord((prev) => (prev === "backend" ? "websites" : "backend"))
+        setIsAnimating(false)
+      }, 500)
+    }, 3000)
 
-// Size mapping for different card variants with wider text
-const sizeMap = {
-  sm: {
-    card: 'h-40 w-[36rem]',  // Wider and taller for better text flow
-    title: 'text-4xl',      // Larger base text size
-    description: 'text-xl'   // Larger description size
-  },
-  md: {
-    card: 'h-48 w-[44rem]',
-    title: 'text-5xl',
-    description: 'text-2xl'
-  },
-  lg: {
-    card: 'h-56 w-[52rem]',
-    title: 'text-6xl',
-    description: 'text-3xl'
-  },
-  xl: {
-    card: 'h-64 w-[72rem]',
-    title: 'text-7xl',
-    description: 'text-4xl'
+    return () => clearInterval(interval)
+  }, [])
+
+  // Initial load animation - start expanded and then sit down
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false)
+    }, 2500) // Slightly longer for smoother transition
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Mouse tracking for spotlight effect
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      setMousePosition({ x, y })
+    }
   }
-};
 
-const BentoCard = ({
-  name,
-  description,
-  className = '',
-  size = 'md',
-  ...props
-}: BentoCardProps) => {
-  const sizeStyles = sizeMap[size] || sizeMap.md;
-  
   return (
-    <div
-      className={cn(
-        // Base styles with animations
-        "group relative flex items-center justify-center bg-white rounded-lg shadow-lg",
-        "transform transition-all duration-300 ease-in-out",
-        "hover:shadow-xl hover:-translate-y-1 hover:scale-[1.01]",
-        // Size variants
-        sizeStyles.card,
-        // Custom classes
-        className,
-      )}
-      {...props}
-    >
-      {/* Animated background effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-300 rounded-lg" />
-      
-      {/* Content - Reduced padding for more text space */}
-      <div className="relative w-full h-full flex flex-col items-center justify-center px-8 py-6">
-        <div className="w-full text-center">
-          <h1 className={cn(
-            "font-bold text-gray-900 leading-tight tracking-tight transition-all duration-300",
-            "group-hover:scale-[1.02] group-hover:text-gray-800",
-            "max-w-4xl mx-auto w-full", // Wider text container
-            "font-[SF Pro Display]", // Explicit SF Pro font
-            sizeStyles.title
-          )}>
-            {name}
-          </h1>
-          <p className={cn(
-            "text-gray-600 mt-6 font-normal transition-all duration-300",
-            "group-hover:text-gray-700",
-            "max-w-3xl mx-auto w-full", // Slightly narrower for better readability
-            "font-[SF Pro Display]", // Explicit SF Pro font
-            sizeStyles.description
-          )}>
-            {description}
-          </p>
+    <div className="w-full flex items-center">
+      <div
+        ref={cardRef}
+        className={`relative w-full max-w-2xl overflow-hidden rounded-xl border bg-zinc-950 border-zinc-900 text-white cursor-pointer transition-all duration-1000 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
+          isInitialLoad || isHovered
+            ? "transform scale-110 shadow-2xl shadow-zinc-900/60 -translate-y-8 border-zinc-700/50"
+            : "transform scale-95 shadow-lg shadow-zinc-900/30 hover:scale-105 hover:shadow-xl hover:shadow-zinc-900/40 hover:border-zinc-700/30"
+        }`}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          transition: "all 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 800ms ease-out",
+        }}
+      >
+        {/* Enhanced dynamic spotlight effect that covers entire component */}
+        <div
+          className="absolute inset-0 pointer-events-none transition-all duration-500 ease-out opacity-80"
+          style={{
+            background: `radial-gradient(circle 600px at ${mousePosition.x}px ${mousePosition.y}px, 
+              rgba(255,255,255,0.15) 0%, 
+              rgba(255,255,255,0.08) 15%, 
+              rgba(255,255,255,0.04) 30%, 
+              rgba(255,255,255,0.02) 45%, 
+              rgba(255,255,255,0.01) 60%, 
+              rgba(255,255,255,0.005) 75%, 
+              transparent 100%)`,
+          }}
+        />
+
+        {/* Secondary subtle glow layer */}
+        <div
+          className="absolute inset-0 pointer-events-none transition-all duration-700 ease-out opacity-60"
+          style={{
+            background: `radial-gradient(ellipse 800px 400px at ${mousePosition.x}px ${mousePosition.y}px, 
+              rgba(255,255,255,0.06) 0%, 
+              rgba(255,255,255,0.03) 25%, 
+              rgba(255,255,255,0.015) 50%, 
+              rgba(255,255,255,0.008) 70%, 
+              transparent 100%)`,
+          }}
+        />
+
+        {/* Central spotlight effect */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.02)_25%,rgba(255,255,255,0.008)_50%,transparent_70%)] transition-opacity duration-500" />
+
+        {/* Subtle edge lighting with smooth transitions */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.015)_0%,transparent_40%)] transition-opacity duration-800" />
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_bottom,rgba(255,255,255,0.01)_0%,transparent_30%)] transition-opacity duration-800" />
+
+        {/* Name area subtle glow with enhanced smoothness */}
+        <div className="absolute top-5 left-20 w-48 h-16 pointer-events-none bg-[radial-gradient(ellipse,rgba(255,255,255,0.03)_0%,transparent_60%)] transition-all duration-600 ease-out" />
+
+        {/* Inner content box with smoother backdrop */}
+        <div className="relative z-10 m-0.5 rounded-lg bg-zinc-950/40 border border-zinc-800/40 backdrop-blur-sm transition-all duration-800 ease-out">
+          <div className="p-5 flex flex-col gap-6 h-full min-h-[275px] sm:min-h-[320px]">
+            {/* Header */}
+            <div className="w-full flex justify-start items-start">
+              <div className="flex gap-3">
+                <img
+                  src="/NameCard.svg?height=64&width=64"
+                  alt="Chaitanya"
+                  className="size-16 rounded-3xl opacity-90 transition-all duration-500 ease-out"
+                />
+                <div>
+                  <p
+                    className="font-normal text-3xl text-white transition-all duration-500 ease-out"
+                    style={{
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif',
+                    }}
+                  >
+                    Chaitanya
+                  </p>
+                  <p className="text-lg font-mono font-light text-zinc-400/80 transition-all duration-500 ease-out">
+                    @Chaitanyaaab
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Main content */}
+            <div className="flex flex-col gap-1 overflow-hidden">
+              <div
+                className="font-normal w-full flex items-center justify-start gap-1 transition-all duration-500 ease-out"
+                style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif',
+                }}
+              >
+                <p className="inline text-2xl transition-all duration-500 ease-out">I build</p>
+                <div className="min-w-[5.5rem] relative">
+                  <div className="w-full text-2xl leading-none text-center relative font-normal">
+                    <span
+                      className={`w-full inline-block transition-all duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
+                        isAnimating ? "opacity-0 blur-sm transform scale-95" : "opacity-100 blur-0 transform scale-100"
+                      } text-zinc-300`}
+                      style={{
+                        filter: isAnimating ? "blur(1px)" : "none",
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif',
+                      }}
+                    >
+                      {currentWord}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-3xl transition-all duration-500 ease-out">.</p>
+              </div>
+              <div className="w-full">
+                <p
+                  className="text-2xl font-normal text-zinc-300 transition-all duration-500 ease-out"
+                  style={{
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif',
+                  }}
+                >
+                  Hello, I'm Chaitanya! a developer passionate about creating amazing digital experiences.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      
-      {/* Subtle border animation */}
-      <div className="absolute inset-0 border-2 border-transparent group-hover:border-gray-100 rounded-lg transition-all duration-300 pointer-events-none" />
     </div>
-  );
-};
-
-// Export components with proper typing
-export { BentoCard, BentoGrid };
-export type { BentoCardProps, BentoGridProps };
+  )
+}

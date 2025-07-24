@@ -2,8 +2,8 @@ import React from "react";
 import { Boxes } from "@/components/Boxes";
 import { cn } from "@/lib/utils";
 import { HomeDock } from "@/components/AppBar";
-import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
+import NameCard from "@/components/magicui/NameCard";
 
 // Overlay for the radial mask effect
 const LandingOverlay = () => (
@@ -15,29 +15,45 @@ export const LandingPage = () => (
   <div
     className="h-96 relative w-full overflow-hidden bg-neutral-850 flex flex-col items-center justify-center rounded-lg min-h-screen"
   >
+  {/* Bottom right - availability */}
+  <div className="absolute bottom-5 right-5 z-100">
+              <div className="font-mono flex justify-end items-center gap-1 text-sm font-light text-zinc-400">
+                <div className="size-1.5 rounded-full bg-green-500" />
+                <p className="text-xs font-light">Available for work</p>
+              </div>
+              <div className="flex items-center justify-center">
+                <time
+                  className="text-[10px] font-light font-mono tabular-nums tracking-wider text-zinc-500"
+                  dateTime={new Date().toISOString()}
+                  aria-label="Current time"
+                >
+                  {new Date().toLocaleDateString("en-US", {
+                    month: "2-digit",
+                    day: "2-digit",
+                    year: "numeric",
+                  })}
+                  ,{" "}
+                  {new Date().toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: true,
+                  })}
+                </time>
+              </div>
+    </div>
     <LandingOverlay />
     <Boxes />
-    {/* Name Card */}
-    {/* 
-      Container for the BentoCard
-      - 'w-full' makes the container take full width
-      - 'flex justify-end' aligns the card to the right
-      - 'pr-8' adds right padding (adjust this value to move left/right)
-      - 'w-3/5' makes the card 60% of its original width (40% less wide)
-    */}
-    <div className="w-full flex justify-center ml-90">
-      <BentoCard
-        name="Chaitanya"
-        description="Welcome to my portfolio"
-        size="lg"
-      className="w-1/3"
-      style={{
-        transform: `translate(-40%,-60%) skewX(-48deg) skewY(14deg) scale(1.2) rotate(0deg) translateZ(0)`,
-      }}
-      />
+    <div style={{
+        // transform: Applies a series of 2D/3D transformations to the grid for a dynamic, skewed look.
+        // You can adjust skew, scale, rotation, or remove for a flat grid.
+        transform: `translate(5%,-20%) skewX(-40deg) skewY(10deg) scale(1) rotate(0deg) translateZ(0)`,
+      }}>
+    <NameCard/>
     </div>
     <HomeDock />
   </div>
+  
 );
 
 export default LandingPage; 
