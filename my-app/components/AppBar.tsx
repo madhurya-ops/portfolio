@@ -4,6 +4,7 @@ import {
   BriefcaseBusinessIcon,
   GithubIcon,
   HomeIcon,
+  ApertureIcon,
   LinkedinIcon,
   MailIcon,
   MessageCircleIcon,
@@ -31,6 +32,16 @@ const dockItems = [
     icon: <BriefcaseBusinessIcon className="text-black"/>,
   },
   {
+    name: "Craft",
+    href: "/craft",
+    icon: <RocketIcon className="text-black"/>,
+  },
+  {
+    name: "Art",
+    href: "/art",
+    icon: <ApertureIcon className="text-black"/>
+  },
+  {
     name: "Chat",
     href: "/chat",
     icon: <MessageCircleIcon className="text-black"/>,
@@ -44,11 +55,6 @@ const dockItems = [
     name: "Linkedin",
     href: "https://www.linkedin.com/in/madhurya-mishra/",
     icon: <LinkedinIcon className="text-black"/>,
-  },
-  {
-    name: "Projects",
-    href: "/projects",
-    icon: <RocketIcon className="text-black"/>,
   },
   {
     name: "Resume",
