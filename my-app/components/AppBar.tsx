@@ -24,53 +24,53 @@ const dockItems = [
   {
     name: "Home",
     href: "/",
-    icon: <HomeIcon className="text-black"/>,
+    icon: <HomeIcon className="text-white"/>,
   },
   {
     name: "Experience",
     href: "/experience",
-    icon: <BriefcaseBusinessIcon className="text-black"/>,
+    icon: <BriefcaseBusinessIcon className="text-white"/>,
   },
   {
     name: "Craft",
     href: "/craft",
-    icon: <RocketIcon className="text-black"/>,
+    icon: <RocketIcon className="text-white"/>,
   },
   {
     name: "Art",
     href: "/art",
-    icon: <ApertureIcon className="text-black"/>
+    icon: <ApertureIcon className="text-white"/>
   },
   {
     name: "Chat",
     href: "/chat",
-    icon: <MessageCircleIcon className="text-black"/>,
+    icon: <MessageCircleIcon className="text-white"/>,
   },
   {
     name: "Github",
     href: "https://github.com/madhurya-ops",
-    icon: <GithubIcon className="text-black"/>,
+    icon: <GithubIcon className="text-white"/>,
   },
   {
     name: "Linkedin",
     href: "https://www.linkedin.com/in/madhurya-mishra/",
-    icon: <LinkedinIcon className="text-black"/>,
+    icon: <LinkedinIcon className="text-white"/>,
   },
   {
     name: "Resume",
-    href: "https://drive.google.com/file/d/1w7koesdJhXb8Zt4TeEOPnq4eHoSevmh8/view?usp=sharing",
-    icon: <SquareUserRound className="text-black"/>,
+    href: "https://drive.google.com/file/d/10PxxSBUCXdJxS07pkpzor3U2x-52hGta/view?usp=drive_link",
+    icon: <SquareUserRound className="text-white"/>,
   },
   {
     name: "Contact",
     href: "/contact",
 
-    icon: <SendIcon className="text-black"/>,
+    icon: <SendIcon className="text-white"/>,
   },
   {
     name: "Email",
     href: "mailto:madhuryamishra@gmail.com",
-    icon: <MailIcon className="text-black"/>,
+    icon: <MailIcon className="text-white"/>,
   },
 ];
 
@@ -82,8 +82,8 @@ export function HomeDock() {
     <div className="fixed bottom-5 left-1/2 z-[101] -translate-x-1/2 md:bottom-10 md:w-auto">
       <Dock
         magnification={60}
-        distance={180}
-        className="scale-90 border-black/20 bg-white md:scale-100"
+        distance={140}
+        className="scale-90 border-black/20 bg-neutral-900 md:scale-100"
       >
         {dockItems.map((item: DockItem) => (
           <DockIcon

@@ -1,30 +1,61 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // Core component for the animated background grid
 export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
+  // State to track clicked boxes and drag state
+  const [clickedBoxes, setClickedBoxes] = useState<Record<string, string>>({});
+  const [isDrawing, setIsDrawing] = useState(false);
+  
+  // Handle mouse down on a box
+  const handleMouseDown = (i: number, j: number) => {
+    setIsDrawing(true);
+    toggleBoxColor(i, j);
+  };
+
+  // Handle mouse enter while dragging
+  const handleMouseEnter = (i: number, j: number) => {
+    if (isDrawing) {
+      toggleBoxColor(i, j);
+    }
+  };
+
+  // Handle mouse up to stop drawing
+  const handleMouseUp = () => {
+    setIsDrawing(false);
+  };
+
+  // Toggle box color
+  const toggleBoxColor = (i: number, j: number) => {
+    const boxId = `box-${i}-${j}`;
+    setClickedBoxes(prev => ({
+      ...prev,
+      [boxId]: prev[boxId] ? '' : getRandomColor()
+    }));
+  };
+  
   // --- CUSTOMIZABLE: Number of rows in the grid ---
   // rows: Controls the vertical density of the grid. More rows = more horizontal lines and more boxes.
-  const rows = new Array(150).fill(1); // Change 120 for more/fewer rows
+  const rows = new Array(90).fill(1); // Change 120 for more/fewer rows
 
   // --- CUSTOMIZABLE: Number of columns in the grid ---
   // cols: Controls the horizontal density of the grid. More columns = more vertical lines and more boxes.
-  const cols = new Array(100).fill(1); // Change 100 for more/fewer columns
+  const cols = new Array(60).fill(1); // Change 100 for more/fewer columns
   
   // --- CUSTOMIZABLE: Color palette for box hover effect ---
   // colors: Array of CSS color values. When a box is hovered, one of these colors is picked at random for the background.
   const colors = [
-    "rgb(125 211 252)", // sky-300
-    "rgb(249 168 212)", // pink-300
-    "rgb(134 239 172)", // green-300
-    "rgb(253 224 71)",  // yellow-300
-    "rgb(252 165 165)", // red-300
-    "rgb(216 180 254)", // purple-300
-    "rgb(147 197 253)", // blue-300
-    "rgb(165 180 252)", // indigo-300
-    "rgb(196 181 253)", // violet-300
+    "rgb(23 78 166)", 
+    "rgb(165 14 14)", 
+    "rgb(66 103 210)",  
+    "rgb(234 67 53)", 
+    "rgb(251 188 4)", 
+    "rgb(52 168 83)", 
+    "rgb(210 227 252)",  
+    "rgb(254 239 195)", 
+    "rgb(206 234 214)"
   ];
 
   // getRandomColor: Returns a random color from the colors array above.
@@ -39,7 +70,7 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
       style={{
         // transform: Applies a series of 2D/3D transformations to the grid for a dynamic, skewed look.
         // You can adjust skew, scale, rotation, or remove for a flat grid.
-        transform: `translate(-40%,-60%) skewX(-48deg) skewY(14deg) scale(1.4) rotate(0deg) translateZ(0)`,
+        transform: `translate(-40%,-60%) scale(0.8) rotate(0deg) translateZ(0)`,
       }}
       className={cn(
         // className: Utility classes for positioning, sizing, and layout of the grid container.
@@ -64,22 +95,25 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
           // - border-l: left border for the row
           // - border-slate-700: border color
           // - relative: for positioning child elements
-          className="w-16 h-8 border-l border-gray-900 relative"
+          className="w-16 h-16 border-l border-neutral-600 relative"
         >
           {/* Render each column in the row */}
           {cols.map((_, j) => (
             <motion.div
+              // Handle mouse events for click and drag
+              onMouseDown={() => handleMouseDown(i, j)}
+              onMouseEnter={() => handleMouseEnter(i, j)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
               // whileHover: Animation config for when a box is hovered.
-              // - backgroundColor: sets a random color from the palette
-              // - transition: duration of the color change (0 = instant)
               whileHover={{
                 backgroundColor: getRandomColor(),
                 transition: { duration: 0 },
               }}
-              // animate: Animation config for the box's transition state.
-              // - transition: duration for smoothness of any animated property
+              // animate: Animation config for the box's transition state
               animate={{
-                transition: { duration: 2 },
+                backgroundColor: clickedBoxes[`box-${i}-${j}`] || 'transparent',
+                transition: { duration: 0 },
               }}
               key={`col` + j}
               // className: Sets the size and borders for each box.
@@ -89,7 +123,7 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
               // - border-t: top border
               // - border-slate-700: border color
               // - relative: for positioning the icon
-              className="w-16 h-8 border-r border-t border-neutral-500 relative"
+              className="w-16 h-16 border-r border-t border-neutral-800 relative"
             >
               {/* No icon rendered here; only the animated boxes remain. */}
             </motion.div>
