@@ -9,7 +9,6 @@ import {
   MailIcon,
   MessageCircleIcon,
   RocketIcon,
-  SendIcon,
   SquareUserRound,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -32,8 +31,8 @@ const dockItems = [
     icon: <BriefcaseBusinessIcon className="text-white"/>,
   },
   {
-    name: "Craft",
-    href: "/craft",
+    name: "Blog",
+    href: "/blog",
     icon: <RocketIcon className="text-white"/>,
   },
   {
@@ -48,28 +47,22 @@ const dockItems = [
   },
   {
     name: "Github",
-    href: "https://github.com/madhurya-ops",
+    href: "https://github.com/Chai-B",
     icon: <GithubIcon className="text-white"/>,
   },
   {
     name: "Linkedin",
-    href: "https://www.linkedin.com/in/madhurya-mishra/",
+    href: "https://www.linkedin.com/in/chaitanyabansal1650/",
     icon: <LinkedinIcon className="text-white"/>,
   },
   {
     name: "Resume",
-    href: "https://drive.google.com/file/d/10PxxSBUCXdJxS07pkpzor3U2x-52hGta/view?usp=drive_link",
+    href: "https://github.com/Chai-B/Chai-B/blob/main/resume.pdf",
     icon: <SquareUserRound className="text-white"/>,
   },
   {
-    name: "Contact",
-    href: "/contact",
-
-    icon: <SendIcon className="text-white"/>,
-  },
-  {
     name: "Email",
-    href: "mailto:madhuryamishra@gmail.com",
+    href: "mailto:bansalchaitanya1234@gmail.com",
     icon: <MailIcon className="text-white"/>,
   },
 ];

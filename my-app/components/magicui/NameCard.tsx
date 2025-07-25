@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import Image from "next/image"
 import { useState, useEffect, useRef } from "react"
 
 const words = ["backend", "websites"];
@@ -10,7 +10,7 @@ export default function NameCard() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [isInitialLoad] = useState(true)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [currentTime, setCurrentTime] = useState(new Date());
   const cardRef = useRef<HTMLDivElement>(null)
@@ -131,9 +131,11 @@ export default function NameCard() {
             {/* Header */}
             <div className="w-full flex justify-start items-start">
               <div className="flex gap-3">
-                <img
+                <Image
                   src="/NameCard.svg?height=64&width=64"
-                  alt="Madhurya"
+                  alt="Chaitanya"
+                  width={64}
+                  height={64}
                   className="size-16 rounded-4xl opacity-90 transition-all duration-500 ease-out"
                 />
                 <div>
@@ -143,10 +145,10 @@ export default function NameCard() {
                       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif',
                     }}
                   >
-                    Madhurya
+                    Chaitanya
                   </p>
                   <p className="text-lg font-mono font-light text-zinc-400/80 transition-all duration-500 ease-out">
-                    @with_maddy_
+                    @Chaitanyaaab
                   </p>
                 </div>
               </div>
@@ -185,7 +187,7 @@ export default function NameCard() {
                     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif',
                   }}
                 >
-                  Hello, I'm Madhurya! a developer passionate about creating amazing digital experiences.
+                  Hello, I&apos;m Chaitanya! a developer passionate about creating amazing digital experiences.
                 </p>
               </div>
             </div>
