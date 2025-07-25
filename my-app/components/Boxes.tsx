@@ -1,10 +1,41 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // Core component for the animated background grid
 export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
+  // State to track clicked boxes and drag state
+  const [clickedBoxes, setClickedBoxes] = useState<Record<string, string>>({});
+  const [isDrawing, setIsDrawing] = useState(false);
+  
+  // Handle mouse down on a box
+  const handleMouseDown = (i: number, j: number) => {
+    setIsDrawing(true);
+    toggleBoxColor(i, j);
+  };
+
+  // Handle mouse enter while dragging
+  const handleMouseEnter = (i: number, j: number) => {
+    if (isDrawing) {
+      toggleBoxColor(i, j);
+    }
+  };
+
+  // Handle mouse up to stop drawing
+  const handleMouseUp = () => {
+    setIsDrawing(false);
+  };
+
+  // Toggle box color
+  const toggleBoxColor = (i: number, j: number) => {
+    const boxId = `box-${i}-${j}`;
+    setClickedBoxes(prev => ({
+      ...prev,
+      [boxId]: prev[boxId] ? '' : getRandomColor()
+    }));
+  };
+  
   // --- CUSTOMIZABLE: Number of rows in the grid ---
   // rows: Controls the vertical density of the grid. More rows = more horizontal lines and more boxes.
   const rows = new Array(90).fill(1); // Change 120 for more/fewer rows
@@ -39,7 +70,7 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
       style={{
         // transform: Applies a series of 2D/3D transformations to the grid for a dynamic, skewed look.
         // You can adjust skew, scale, rotation, or remove for a flat grid.
-        transform: `translate(-40%,-60%) skewX(-40deg) skewY(10deg) scale(1.2) rotate(0deg) translateZ(0)`,
+        transform: `translate(-40%,-60%) scale(0.8) rotate(0deg) translateZ(0)`,
       }}
       className={cn(
         // className: Utility classes for positioning, sizing, and layout of the grid container.
@@ -64,22 +95,25 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
           // - border-l: left border for the row
           // - border-slate-700: border color
           // - relative: for positioning child elements
-          className="w-16 h-8 border-l border-neutral-600 relative"
+          className="w-16 h-16 border-l border-neutral-600 relative"
         >
           {/* Render each column in the row */}
           {cols.map((_, j) => (
             <motion.div
+              // Handle mouse events for click and drag
+              onMouseDown={() => handleMouseDown(i, j)}
+              onMouseEnter={() => handleMouseEnter(i, j)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
               // whileHover: Animation config for when a box is hovered.
-              // - backgroundColor: sets a random color from the palette
-              // - transition: duration of the color change (0 = instant)
               whileHover={{
                 backgroundColor: getRandomColor(),
                 transition: { duration: 0 },
               }}
-              // animate: Animation config for the box's transition state.
-              // - transition: duration for smoothness of any animated property
+              // animate: Animation config for the box's transition state
               animate={{
-                transition: { duration: 2 },
+                backgroundColor: clickedBoxes[`box-${i}-${j}`] || 'transparent',
+                transition: { duration: 0 },
               }}
               key={`col` + j}
               // className: Sets the size and borders for each box.
@@ -89,7 +123,7 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
               // - border-t: top border
               // - border-slate-700: border color
               // - relative: for positioning the icon
-              className="w-16 h-8 border-r border-t border-neutral-800 relative"
+              className="w-16 h-16 border-r border-t border-neutral-800 relative"
             >
               {/* No icon rendered here; only the animated boxes remain. */}
             </motion.div>

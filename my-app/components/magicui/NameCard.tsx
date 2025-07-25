@@ -4,33 +4,35 @@ import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
 
+const words = ["backend", "websites"];
+
 export default function NameCard() {
-  const [currentWord, setCurrentWord] = useState("backend")
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [currentTime, setCurrentTime] = useState(new Date());
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const wordInterval = setInterval(() => {
       setIsAnimating(true)
       setTimeout(() => {
-        setCurrentWord((prev) => (prev === "backend" ? "websites" : "backend"))
+        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
         setIsAnimating(false)
       }, 500)
-    }, 3000)
+    }, 3000);
 
-    return () => clearInterval(interval)
-  }, [])
+    // Update time every second
+    const timeInterval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
 
-  // Initial load animation - start expanded and then sit down
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsInitialLoad(false)
-    }, 2500) // Slightly longer for smoother transition
-
-    return () => clearTimeout(timer)
+    return () => {
+      clearInterval(wordInterval);
+      clearInterval(timeInterval);
+    };
   }, [])
 
   // Mouse tracking for spotlight effect
@@ -45,11 +47,37 @@ export default function NameCard() {
 
   return (
     <div className="w-full flex items-center">
+      <div className="absolute bottom-10 right-0 z-100">
+              <div className="font-mono flex justify-end items-center gap-1 text-sm font-light text-zinc-400">
+                <div className="size-1.5 rounded-full bg-green-500" />
+                <p className="text-s font-light">Available for work</p>
+              </div>
+              <div className="flex items-center justify-center">
+                <time
+                  className="text-[11px] font-light font-mono tabular-nums tracking-wider text-zinc-500"
+                  dateTime={currentTime.toISOString()}
+                  aria-label="Current time"
+                >
+                  {currentTime.toLocaleDateString("en-US", {
+                    month: "2-digit",
+                    day: "2-digit",
+                    year: "numeric",
+                  })}
+                  ,{" "}
+                  {currentTime.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: true,
+                  })}
+                </time>
+              </div>
+    </div>
       <div
         ref={cardRef}
-        className={`relative w-full max-w-2xl overflow-hidden rounded-xl border bg-zinc-950 border-zinc-900 text-white cursor-pointer transition-all duration-1000 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
+        className={`relative w-full max-w-xl overflow-hidden rounded-xl border bg-zinc-950 border-zinc-900 text-white cursor-pointer transition-all duration-1000 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
           isInitialLoad || isHovered
-            ? "transform scale-110 shadow-2xl shadow-zinc-900/60 -translate-y-8 border-zinc-700/50"
+            ? "transform scale-110 shadow-xl shadow-zinc-900/60 -translate-y-8 border-zinc-700/50"
             : "transform scale-95 shadow-lg shadow-zinc-900/30 hover:scale-105 hover:shadow-xl hover:shadow-zinc-900/40 hover:border-zinc-700/30"
         }`}
         onMouseMove={handleMouseMove}
@@ -98,19 +126,19 @@ export default function NameCard() {
         <div className="absolute top-5 left-20 w-48 h-16 pointer-events-none bg-[radial-gradient(ellipse,rgba(255,255,255,0.03)_0%,transparent_60%)] transition-all duration-600 ease-out" />
 
         {/* Inner content box with smoother backdrop */}
-        <div className="relative z-10 m-0.5 rounded-lg bg-zinc-950/40 border border-zinc-800/40 backdrop-blur-sm transition-all duration-800 ease-out">
-          <div className="p-5 flex flex-col gap-6 h-full min-h-[275px] sm:min-h-[320px]">
+        <div className="relative z-10 rounded-lg bg-zinc-950/40 border border-zinc-800/40 backdrop-blur-sm transition-all duration-800 ease-out">
+          <div className="p-5 flex flex-col gap-6 h-full min-h-[300px] sm:min-h-[340px]">
             {/* Header */}
             <div className="w-full flex justify-start items-start">
               <div className="flex gap-3">
                 <img
                   src="/NameCard.svg?height=64&width=64"
                   alt="Chaitanya"
-                  className="size-16 rounded-3xl opacity-90 transition-all duration-500 ease-out"
+                  className="size-16 rounded-4xl opacity-90 transition-all duration-500 ease-out"
                 />
                 <div>
                   <p
-                    className="font-normal text-3xl text-white transition-all duration-500 ease-out"
+                    className="font-normal text-4xl text-white transition-all duration-500 ease-out"
                     style={{
                       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif',
                     }}
@@ -144,7 +172,7 @@ export default function NameCard() {
                         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif',
                       }}
                     >
-                      {currentWord}
+                      {words[currentWordIndex]}
                     </span>
                   </div>
                 </div>
