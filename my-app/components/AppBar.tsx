@@ -47,22 +47,22 @@ const dockItems = [
   },
   {
     name: "Github",
-    href: "https://github.com/Chai-B",
+    href: "https://github.com/madhurya-ops",
     icon: <GithubIcon className="text-white"/>,
   },
   {
     name: "Linkedin",
-    href: "https://www.linkedin.com/in/chaitanyabansal1650/",
+    href: "https://www.linkedin.com/in/madhurya-mishra/",
     icon: <LinkedinIcon className="text-white"/>,
   },
   {
     name: "Resume",
-    href: "https://github.com/Chai-B/Chai-B/blob/main/resume.pdf",
+    href: "https://drive.google.com/file/d/10PxxSBUCXdJxS07pkpzor3U2x-52hGta/view?usp=drive_link",
     icon: <SquareUserRound className="text-white"/>,
   },
   {
     name: "Email",
-    href: "mailto:bansalchaitanya1234@gmail.com",
+    href: "mailto:madhuryamishra@gmail.com",
     icon: <MailIcon className="text-white"/>,
   },
 ];
