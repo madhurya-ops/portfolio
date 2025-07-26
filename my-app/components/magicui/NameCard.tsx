@@ -187,7 +187,7 @@ export default function NameCard() {
                     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif',
                   }}
                 >
-                  Hello, I&apos;m Chaitanya! a developer passionate about creating amazing digital experiences.
+                  Hello, I&apos;m Madhurya! a developer passionate about creating amazing digital experiences.
                 </p>
               </div>
             </div>
