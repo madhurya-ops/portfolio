@@ -62,12 +62,6 @@ const dockItems = [
     icon: <SquareUserRound className="text-white"/>,
   },
   {
-    name: "Contact",
-    href: "/contact",
-
-    icon: <SendIcon className="text-white"/>,
-  },
-  {
     name: "Email",
     href: "mailto:madhuryamishra@gmail.com",
     icon: <MailIcon className="text-white"/>,
