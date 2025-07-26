@@ -1,8 +1,6 @@
 import React from "react";
 import { Boxes } from "@/components/Boxes";
-import { cn } from "@/lib/utils";
 import { HomeDock } from "@/components/AppBar";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
 import NameCard from "@/components/magicui/NameCard";
 
 // Overlay for the radial mask effect

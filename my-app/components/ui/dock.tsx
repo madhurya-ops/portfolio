@@ -1,8 +1,8 @@
 "use client";
 
-import React, { PropsWithChildren, useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, MotionValue } from "framer-motion";
 
 import {
   Tooltip,
@@ -54,7 +54,8 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
     }, []);
 
     const renderChildren = () => {
-      return React.Children.map(children, (child: any) => {
+      return React.Children.map(children, (child) => {
+        if (!React.isValidElement<DockIconProps>(child)) return child;
         return React.cloneElement(child, {
           mouseX: mouseX,
           magnification: magnification,
@@ -86,21 +87,19 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
 
 Dock.displayName = "Dock";
 
-export interface DockIconProps {
-  size?: number;
+interface DockIconProps {
+
+  className?: string;
   magnification?: number;
   distance?: number;
-  mouseX?: any;
-  className?: string;
+  mouseX?: MotionValue<number>;
   children?: React.ReactNode;
   isMobile?: boolean;
-  props?: PropsWithChildren;
   href: string;
   tooltip?: string;
 }
 
 const DockIcon = ({
-  size,
   magnification = DEFAULT_MAGNIFICATION,
   distance = DEFAULT_DISTANCE,
   mouseX,
@@ -113,19 +112,22 @@ const DockIcon = ({
 }: DockIconProps) => {
   const ref = useRef<HTMLAnchorElement>(null);
 
-  const distanceCalc = useTransform(mouseX, (val: number) => {
+  const initialMouseX = useMotionValue(0);
+  const mouseXValue = mouseX ?? initialMouseX;
+
+  const distanceCalc = useTransform(mouseXValue, (val: number) => {
     if (isMobile) return 0;
     const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
     return val - bounds.x - bounds.width / 2;
   });
 
-  let widthSync = useTransform(
+  const widthSync = useTransform<number, number>(
     distanceCalc,
     [-distance, 0, distance],
-    [40, magnification, 40],
+    [40, magnification, 40]
   );
 
-  let width = useSpring(widthSync, {
+  const width = useSpring(widthSync, {
     mass: 0.1,
     stiffness: 150,
     damping: 12,
@@ -144,7 +146,7 @@ const DockIcon = ({
             href === "/chat" ||
             href === "/experience" ||
             href === "/art" ||
-            href === "/craft"
+            href === "/blog"
               ? "_self"
               : "_blank"
           }
