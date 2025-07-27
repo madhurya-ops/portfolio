@@ -52,7 +52,7 @@ const dockItems = [
   },
   {
     name: "Resume",
-    href: "https://github.com/Chai-B/Chai-B/blob/main/resume.pdf",
+    href: "https://drive.google.com/file/d/1neP9jAwtsWXcUqXdObqMfTG50CgonOBv/view?usp=sharing",
     icon: <SquareUserRound className="text-white"/>,
   },
   {
