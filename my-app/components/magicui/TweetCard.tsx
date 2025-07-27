@@ -245,7 +245,7 @@ export const ClientTweetCard = ({
 }: {
   id: string;
   className?: string;
-  onError?: (error: any) => void;
+  onError?: (error: unknown) => void;
 }) => {
   const [tweet, setTweet] = useState<Tweet | null>(null);
   const [loading, setLoading] = useState(true);
@@ -309,7 +309,7 @@ export const TweetCard = async ({
   id: string;
   components?: TwitterComponents;
   fallback?: React.ReactNode;
-  onError?: (error: any) => void;
+  onError?: (error: unknown) => void;
   className?: string;
 }) => {
   let tweet;

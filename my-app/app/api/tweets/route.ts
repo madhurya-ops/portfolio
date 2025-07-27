@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 // Extended cache duration to reduce API calls
 let cache: {
-  data: any;
+  data: { tweets: Tweet[]; lastUpdated: string };
   timestamp: number;
   rateLimitReset?: number;
 } | null = null;
