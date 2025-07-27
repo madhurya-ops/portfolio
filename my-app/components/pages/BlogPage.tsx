@@ -296,7 +296,7 @@ export default function BlogPage() {
   // Picture data - you can customize these images
   const pictureData = [
     { src: "/blog1.png", alt: "Gallery image 1" },
-    { src: "/pic2.jpg", alt: "Gallery image 2" },
+    { src: "/blog2.png", alt: "Gallery image 2" },
     { src: "/blog3.png", alt: "Gallery image 3" },
     { src: "/blog4.png", alt: "Gallery image 4" },
   ];
