@@ -1,5 +1,6 @@
 "use client";
 import { Dock, DockIcon } from "@/components/ui/dock";
+import ThemeToggle from "@/components/ui/toggleTheme";
 import {
   BriefcaseBusinessIcon,
   GithubIcon,
@@ -10,6 +11,8 @@ import {
   MessageCircleIcon,
   RocketIcon,
   SquareUserRound,
+  Sun,
+  Moon
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -38,12 +41,7 @@ const dockItems = [
   {
     name: "Art",
     href: "/art",
-    icon: <ApertureIcon className="text-white"/>
-  },
-  {
-    name: "Chat",
-    href: "/chat",
-    icon: <MessageCircleIcon className="text-white"/>,
+    icon: <ApertureIcon className="text-white"/>,
   },
   {
     name: "Github",
@@ -88,6 +86,10 @@ export function HomeDock() {
             {item.icon}
           </DockIcon>
         ))}
+        {/* Remove DockIcon wrapper and just render ThemeToggle directly */}
+        <div className="flex items-center justify-center p-2">
+          <ThemeToggle />
+        </div>
       </Dock>
     </div>
   );

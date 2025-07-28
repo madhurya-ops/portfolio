@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { Heart, MessageCircle, Repeat2, Share } from "lucide-react"
 import { HomeDock } from "@/components/AppBar";
+import { useTheme } from "@/components/ui/themeProvider";
 
 // Mock data structure for tweets - customize this to match your data source
 const mockTweets = [
@@ -11,15 +12,14 @@ const mockTweets = [
     user: { 
       name: "Chaitanya", 
       username: "Chaitanyaaab", 
-      avatar: "/placeholder.svg?height=40&width=40" // Avatar URL (currently not used after UI removal)
+      avatar: "/placeholder.svg?height=40&width=40"
     },
     content: "Just shipped a new feature! The feeling of seeing your code come to life never gets old. 🚀 #coding #webdev",
-    timestamp: "2h", // Display format for time - customize as needed
+    timestamp: "2h",
     likes: 42,
     retweets: 12,
     replies: 8,
   },
-  // ... Additional tweet objects follow the same structure
   {
     id: 2,
     user: { name: "Chaitanya", username: "Chaitanyaaab", avatar: "/placeholder.svg?height=40&width=40" },
@@ -86,26 +86,26 @@ const mockTweets = [
 ]
 
 /**
- * Individual Tweet Card Component
- * 
- * Customization Options:
- * - Card width: Change 'w-80' to adjust card width (w-64, w-96, etc.)
- * - Background: Modify 'bg-gray-800' for different card background colors
- * - Border: Adjust 'border-gray-700' for border color, remove 'border' for no border
- * - Spacing: Modify 'mx-2' for horizontal margin between cards
- * - Padding: Change 'p-4' for internal card padding
- * - Border radius: Adjust 'rounded-lg' (rounded-sm, rounded-xl, etc.)
+ * Individual Tweet Card Component with theme support
  */
 function TweetCard({ tweet }: { tweet: (typeof mockTweets)[0] }) {
+  const { theme } = useTheme();
+  
   return (
-    <div className="w-80 flex-shrink-0 mx-2 bg-neutral-800 border border-neutral-700 rounded-lg p-4">
+    <div className={`w-80 flex-shrink-0 mx-2 border rounded-lg p-4 ${
+      theme === "light" 
+        ? "bg-gray-50 border-gray-200" 
+        : "bg-neutral-800 border-neutral-700"
+    }`}>
       {/* Header Section - User info and timestamp */}
       <div className="pb-3">
         <div className="flex items-center space-x-3">
-          {/* Avatar - Custom initials display (replaces Avatar component) */}
-          {/* Customization: Change size (w-10 h-10), background color (bg-gray-600), text color */}
-          <div className="w-10 h-10 bg-neutral-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-            {/* Extract and display first letters of user's name */}
+          {/* Avatar - Theme-aware colors */}
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
+            theme === "light" 
+              ? "bg-gray-300 text-gray-700" 
+              : "bg-neutral-600 text-white"
+          }`}>
             {tweet.user.name
               .split(" ")
               .map((n) => n[0])
@@ -114,10 +114,14 @@ function TweetCard({ tweet }: { tweet: (typeof mockTweets)[0] }) {
           
           {/* User name and handle section */}
           <div className="flex-1 min-w-0">
-            {/* User display name - Customize text color and size */}
-            <p className="text-sm font-semibold text-white truncate">{tweet.user.name}</p>
-            {/* Username and timestamp - Customize text color and format */}
-            <p className="text-sm text-neutral-400 truncate">
+            {/* User display name - Theme-aware text */}
+            <p className={`text-sm font-semibold truncate ${
+              theme === "light" ? "text-gray-900" : "text-white"
+            }`}>{tweet.user.name}</p>
+            {/* Username and timestamp - Theme-aware muted text */}
+            <p className={`text-sm truncate ${
+              theme === "light" ? "text-gray-500" : "text-neutral-400"
+            }`}>
               @{tweet.user.username} · {tweet.timestamp}
             </p>
           </div>
@@ -126,19 +130,20 @@ function TweetCard({ tweet }: { tweet: (typeof mockTweets)[0] }) {
       
       {/* Content Section - Tweet text and interaction buttons */}
       <div className="pt-0">
-        {/* Tweet content text */}
-        {/* Customization: Adjust text size (text-sm), color (text-gray-100), line height */}
-        <p className="text-sm text-neutral-100 mb-4 leading-relaxed">{tweet.content}</p>
+        {/* Tweet content text - Theme-aware */}
+        <p className={`text-sm mb-4 leading-relaxed ${
+          theme === "light" ? "text-gray-800" : "text-neutral-100"
+        }`}>{tweet.content}</p>
         
-        {/* Interaction buttons row */}
-        {/* Customization: Change button colors, sizes, spacing */}
-        <div className="flex items-center justify-between text-gray-400">
+        {/* Interaction buttons row - Theme-aware colors */}
+        <div className={`flex items-center justify-between ${
+          theme === "light" ? "text-gray-500" : "text-gray-400"
+        }`}>
           
           {/* Reply button */}
-          {/* Hover effect: hover:text-blue-400 - customize hover colors */}
           <div className="flex items-center space-x-1 hover:text-blue-400 cursor-pointer transition-colors">
-            <MessageCircle className="w-4 h-4" /> {/* Icon size customizable */}
-            <span className="text-xs">{tweet.replies}</span> {/* Number text size */}
+            <MessageCircle className="w-4 h-4" />
+            <span className="text-xs">{tweet.replies}</span>
           </div>
           
           {/* Retweet button */}
@@ -153,7 +158,7 @@ function TweetCard({ tweet }: { tweet: (typeof mockTweets)[0] }) {
             <span className="text-xs">{tweet.likes}</span>
           </div>
           
-          {/* Share button - no counter display */}
+          {/* Share button */}
           <div className="hover:text-blue-400 cursor-pointer transition-colors">
             <Share className="w-4 h-4" />
           </div>
@@ -164,80 +169,56 @@ function TweetCard({ tweet }: { tweet: (typeof mockTweets)[0] }) {
 }
 
 /**
- * Animated Row Component - Creates horizontally scrolling rows of tweets
- * 
- * Props:
- * - tweets: Array of tweet objects to display
- * - direction: "left" or "right" - controls scroll direction
- * - speed: Number (default 50) - lower = faster, higher = slower animation
- * 
- * Customization Options:
- * - Animation speed: Adjust speed prop or modify interval timing
- * - Scroll behavior: Modify the animate function logic
- * - Row spacing: Change 'py-2' for vertical padding between rows
+ * Animated Row Component - unchanged functionality, theme support added via TweetCard
  */
 function AnimatedRow({
   tweets,
   direction,
-  speed = 50, // Default animation speed - customize as needed
+  speed = 50,
 }: { tweets: typeof mockTweets; direction: "left" | "right"; speed?: number }) {
   
-  // Reference to the scrollable container for direct DOM manipulation
   const rowRef = useRef<HTMLDivElement>(null)
 
-  // Animation effect - runs continuously to create scrolling effect
   useEffect(() => {
     const row = rowRef.current
     if (!row) return
 
-    // Animation function - called repeatedly via setInterval
     const animate = () => {
-      const scrollWidth = row.scrollWidth    // Total scrollable width
-      const clientWidth = row.clientWidth    // Visible width
+      const scrollWidth = row.scrollWidth
+      const clientWidth = row.clientWidth
 
-      // Left scrolling logic
       if (direction === "left") {
-        // Reset to start when reaching the end
         if (row.scrollLeft >= scrollWidth - clientWidth) {
           row.scrollLeft = 0
         } else {
-          row.scrollLeft += 1 // Increment scroll position - adjust for speed
+          row.scrollLeft += 1
         }
-      } 
-      // Right scrolling logic  
-      else {
-        // Reset to end when reaching the start
+      } else {
         if (row.scrollLeft <= 0) {
           row.scrollLeft = scrollWidth - clientWidth
         } else {
-          row.scrollLeft -= 1 // Decrement scroll position - adjust for speed
+          row.scrollLeft -= 1
         }
       }
     }
 
-    // Start animation interval - speed parameter controls timing
     const interval = setInterval(animate, speed)
-    
-    // Cleanup function to prevent memory leaks
     return () => clearInterval(interval)
   }, [direction, speed])
 
   return (
     <div
       ref={rowRef}
-      className="flex overflow-x-hidden py-2" // Hidden scrollbar, vertical padding
-      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }} // Hide scrollbar cross-browser
+      className="flex overflow-x-hidden py-2"
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
     >
-      {/* CSS-in-JS to hide webkit scrollbars */}
       <style jsx>{`
         div::-webkit-scrollbar {
           display: none;
         }
       `}</style>
       
-      {/* Content container - duplicated tweets for seamless loop */}
       <div className="flex">
-        {/* Duplicate tweets array to create infinite scroll effect */}
         {[...tweets, ...tweets].map((tweet, index) => (
           <TweetCard key={`${tweet.id}-${index}`} tweet={tweet} />
         ))}
@@ -247,44 +228,42 @@ function AnimatedRow({
 }
 
 /**
- * Main Blog Page Component
- * 
- * Customization Options:
- * - Background: Modify 'bg-black' for different page background
- * - Container width: Change 'max-w-7xl' for different max widths
- * - Padding: Adjust 'px-4' and 'py-4' for page margins
- * - Gradient overlay: Modify the radial-gradient style for different visual effects
- * - Row spacing: Change 'space-y-4' for different spacing between rows
+ * Main Blog Page Component with theme support
  */
 export default function BlogPage() {
-  // Define which tweets appear in each row - customize tweet selection
-  // Currently shows tweets 4-7 in first row, 8-11 in second row (but only 8 tweets exist)
+  const { theme } = useTheme();
+  
   const rows = [
-    mockTweets.slice(4, 8), // First row: tweets 5-8
-    mockTweets.slice(0, 4)  // Second row: tweets 1-4 (modified to show existing tweets)
+    mockTweets.slice(4, 8),
+    mockTweets.slice(0, 4)
   ]
+  
+  // Theme-aware overlay component
   const LandingOverlay = () => (
-    <div className="absolute inset-0 w-full h-full bg-neutral-950 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
+    <div className={`absolute inset-0 w-full h-full z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none ${
+      theme === "light" 
+        ? "bg-gray-50" 
+        : "bg-neutral-950"
+    }`} />
   );
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden flex flex-col items-center justify-center">
-      {/* Background gradient overlay */}
-      {/* Customization: Modify colors, opacity, gradient type for different visual effects */}
+    <div className={`min-h-screen relative overflow-hidden flex flex-col items-center justify-center ${
+      theme === "light" ? "bg-white" : "bg-black"
+    }`}>
+      {/* Background gradient overlay with theme support */}
       <LandingOverlay />
       <HomeDock />
+      
       {/* Main content container */}
-      {/* Customization: Adjust max-width, padding, positioning */}
       <div className="w-full max-w-9xl px-4 relative" style={{ zIndex: 10 }}>
-        {/* Rows container with vertical spacing */}
         <div className="space-y-0">
-          {/* Generate animated rows */}
           {rows.map((rowTweets, index) => (
             <AnimatedRow
               key={index}
               tweets={rowTweets}
-              direction={index % 2 === 0 ? "left" : "right"} // Alternate direction per row
-              speed={20} // Vary speed per row - customize multiplier
+              direction={index % 2 === 0 ? "left" : "right"}
+              speed={20}
             />
           ))}
         </div>
