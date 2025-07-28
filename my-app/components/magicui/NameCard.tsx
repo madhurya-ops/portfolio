@@ -21,8 +21,8 @@ export default function NameCard() {
       setTimeout(() => {
         setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
         setIsAnimating(false)
-      }, 500)
-    }, 3000);
+      }, 400)
+    }, 1750);
 
     // Update time every second
     const timeInterval = setInterval(() => {
