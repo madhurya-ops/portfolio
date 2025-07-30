@@ -4,6 +4,7 @@ import React, { useRef, useState, useCallback, useMemo } from "react"
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { HomeDock } from "@/components/AppBar"
+import Image from "next/image" // 🔄 ADDED: Import Next.js Image
 
 // ========================================
 // TYPE DEFINITIONS & INTERFACES
@@ -113,8 +114,8 @@ interface TimelineDotProps {
   scrollProgress: number
 }
 
-const TimelineDot = React.memo(function TimelineDot({ index, totalItems, scrollProgress }: TimelineDotProps) {
-  const dotPosition = (index + 0.5) / totalItems
+const TimelineDot = React.memo(function TimelineDot({ index, scrollProgress }: TimelineDotProps) { // 🔄 FIXED: Removed unused totalItems
+  const dotPosition = (index + 0.5) / timelineData.length // 🔄 FIXED: Use actual data length
   const isScrolledPast = scrollProgress >= dotPosition
   
   const animationValues = useMemo(() => ({
@@ -150,24 +151,23 @@ interface TimelineCardProps {
   totalItems: number
 }
 
-const TimelineCard = React.memo(function TimelineCard({ item, index, totalItems }: TimelineCardProps) {
+const TimelineCard = React.memo(function TimelineCard({ item, index }: TimelineCardProps) { // 🔄 FIXED: Removed unused totalItems
   const ref = useRef(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   
-  // 🔄 FIXED: Changed 'threshold' to 'amount'
   const isInView = useInView(ref, { 
-    amount: 0.3,  // 🔄 FIXED: 'threshold' → 'amount'
+    amount: 0.3,
     once: true
   })
 
   const side = useMemo(() => getSideForIndex(index), [index])
   const isLeft = side === "left"
 
-  const mouseMoveTimeoutRef = useRef<number>()
+  const mouseMoveTimeoutRef = useRef<number | null>(null) // 🔄 FIXED: Added proper initialization
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (mouseMoveTimeoutRef.current) {
+    if (mouseMoveTimeoutRef.current !== null) {
       cancelAnimationFrame(mouseMoveTimeoutRef.current)
     }
     
@@ -184,7 +184,7 @@ const TimelineCard = React.memo(function TimelineCard({ item, index, totalItems 
   const handleMouseEnter = useCallback(() => setIsExpanded(true), [])
   const handleMouseLeave = useCallback(() => {
     setIsExpanded(false)
-    if (mouseMoveTimeoutRef.current) {
+    if (mouseMoveTimeoutRef.current !== null) {
       cancelAnimationFrame(mouseMoveTimeoutRef.current)
     }
   }, [])
@@ -307,7 +307,6 @@ const TimelineCard = React.memo(function TimelineCard({ item, index, totalItems 
                     </div>
                   )}
                   
-                  {/* Fixed Details Button with Link */}
                   <Button 
                     variant="outline" 
                     size="default"
@@ -352,7 +351,7 @@ export default function Experience() {
     }
   }, [])
 
-  const lineHeight = useTransform(scrollYProgress, [0, 1], [`${lineStartPercent}%`, `${lineEndPercent}%`])
+  // 🔄 REMOVED: Unused lineHeight variable
   const coloredLineHeight = useTransform(scrollYProgress, [0, 1], ["0%", `${lineEndPercent - lineStartPercent}%`])
 
   const [currentScrollProgress, setCurrentScrollProgress] = useState(0)
