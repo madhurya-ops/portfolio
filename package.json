@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "react-router-dom": "^7.7.0"
+    "react-router-dom": "^7.7.0",
+    "react-tweet": "^3.2.2"
   }
 }
