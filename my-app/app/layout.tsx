@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import ThemeProvider from "@/components/ui/themeProvider";
 
 export const metadata: Metadata = {
   title: "Madhurya's Portfolio",
@@ -24,9 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
-        <ThemeProvider>
           {children}
-        </ThemeProvider>
       </body>
     </html>
   );

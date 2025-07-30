@@ -1,6 +1,5 @@
 "use client";
 import { Dock, DockIcon } from "@/components/ui/dock";
-import ThemeToggle from "@/components/ui/toggleTheme";
 import {
   BriefcaseBusinessIcon,
   GithubIcon,
@@ -88,7 +87,6 @@ export function HomeDock() {
         ))}
         {/* Remove DockIcon wrapper and just render ThemeToggle directly */}
         <div className="flex items-center justify-center p-2">
-          <ThemeToggle />
         </div>
       </Dock>
     </div>

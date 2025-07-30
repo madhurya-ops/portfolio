@@ -1,22 +1,19 @@
-"use client"
+"use client";
 
 import React from "react";
 import { HomeDock } from "@/components/AppBar";
 import Image from "next/image";
-import { useTheme } from "@/components/ui/themeProvider";
 
 const GalleryPage = () => {
-  const { theme } = useTheme();
-  
   const images = [
     { src: "/pic1.jpeg", w: 300, h: 400 },
-    { src: "/pic2.JPG", w: 600, h: 800 },
+    { src: "/pic2.JPG", w: 600, h: 800 }, 
     { src: "/pic3.jpg", w: 600, h: 800 },
     { src: "/pic4.jpg", w: 300, h: 400 },
     { src: "/pic5.jpeg", w: 300, h: 720 },
     { src: "/pic6.jpeg", w: 300, h: 400 },
     { src: "/pic8.jpeg", w: 300, h: 300 },
-    { src: "/pic9.JPG", w: 300, h: 585 },
+    { src: "/pic9.JPG", w: 300, h: 585 }, 
     { src: "/pic10.jpeg", w: 900, h: 400 },
   ];
 
@@ -24,17 +21,17 @@ const GalleryPage = () => {
     const aspectRatio = w / h;
     const isWide = aspectRatio > 1.5;
     const isTall = aspectRatio < 0.7;
-    
+
     return `${isWide ? "lg:col-span-2" : ""} ${isTall ? "lg:row-span-2" : ""}`.trim();
   };
 
   const getContainerStyle = (w: number, h: number) => ({
     aspectRatio: `${w} / ${h}`,
-    background: "radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%)"
+    background: "radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%)",
   });
 
   return (
-    <div className={`min-h-screen p-2 pt-6 ${theme === "light" ? "bg-white" : "bg-black"}`}>
+    <>
       <div className="mx-auto grid auto-rows-min grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {images.map((image, index) => (
           <div
@@ -43,7 +40,7 @@ const GalleryPage = () => {
             style={getContainerStyle(image.w, image.h)}
           >
             <Image
-              src={image.src || "/placeholder.svg"}
+              src={image.src}
               alt={`Gallery image ${index + 1}`}
               fill
               className="object-cover"
@@ -52,7 +49,7 @@ const GalleryPage = () => {
         ))}
       </div>
       <HomeDock />
-    </div>
+    </>
   );
 };
 
