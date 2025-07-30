@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import { HomeDock } from "@/components/AppBar";
-import { TweetSkeleton } from "@/components/magicui/TweetCard";
+import  {TweetSkeleton}  from "@/components/magicui/TweetCard";
 import Image from "next/image";
 
 // Type definition matching your API response
