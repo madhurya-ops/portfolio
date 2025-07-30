@@ -133,7 +133,7 @@ export default function NameCard() {
               <div className="flex gap-3">
                 <Image
                   src="/NameCard.svg?height=64&width=64"
-                  alt="Chaitanya"
+                  alt="Madhurya"
                   width={64}
                   height={64}
                   className="size-16 rounded-4xl opacity-90 transition-all duration-500 ease-out"
@@ -145,10 +145,10 @@ export default function NameCard() {
                       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif',
                     }}
                   >
-                    Chaitanya
+                    Madhurya
                   </p>
                   <p className="text-lg font-mono font-light text-zinc-500/90 transition-all duration-500 ease-out">
-                    @Chaitanyaaab
+                    @with_maddy_
                   </p>
                 </div>
               </div>
@@ -187,7 +187,7 @@ export default function NameCard() {
                     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif',
                   }}
                 >
-                  Hello, I&apos;m Chaitanya! A developer, passionate about creating amazing digital experiences.
+                  Hello, I&apos;m Madhurya! A developer, passionate about creating amazing digital experiences.
                 </p>
               </div>
             </div>

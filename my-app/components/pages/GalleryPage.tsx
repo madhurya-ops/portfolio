@@ -4,19 +4,17 @@ import Image from "next/image";
 
 const GalleryPage = () => {
   const images = [
-    { src: "/pic1.jpg", w: 300, h: 400 },
-    { src: "/pic2.jpg", w: 600, h: 800 },
-    { src: "/pic10.jpg", w: 600, h: 800 },
+    { src: "/pic1.jpeg", w: 300, h: 270 },
+    { src: "/pic2.JPG", w: 900, h: 400 },
+    { src: "/pic3.jpg", w: 400, h: 900 },
     { src: "/pic4.jpg", w: 300, h: 400 },
-    //{ src: "/pic5.JPG", w: 600, h: 300 },
-    { src: "/pic6.jpg", w: 300, h: 720 },
-    { src: "/pic7.jpg", w: 300, h: 400 },
-    { src: "/pic8.jpg", w: 300, h: 300 },
-    { src: "/pic9.jpg", w: 300, h: 585 },
-    { src: "/pic11.jpg", w: 900, h: 400 },
-    
-    
-    
+    { src: "/pic5.jpeg", w: 300, h: 400 },
+    { src: "/pic9.JPG", w: 300, h: 720 },
+    { src: "/pic8.jpeg", w: 300, h: 300 },
+    { src: "/pic6.jpeg", w: 300, h: 410 },
+    { src: "/pic11.jpeg", w: 300, h: 690 },
+    { src: "/pic10.jpeg", w: 900, h: 400 },
+      
   ];
 
   const getGridItemClass = (w: number, h: number) => {
