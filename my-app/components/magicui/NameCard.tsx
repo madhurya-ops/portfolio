@@ -4,7 +4,7 @@ import type React from "react"
 import Image from "next/image"
 import { useState, useEffect, useRef } from "react"
 
-const words = ["backend", "websites", "AI tools"];
+const words = ["backend", "websites"];
 
 export default function NameCard() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -21,8 +21,8 @@ export default function NameCard() {
       setTimeout(() => {
         setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
         setIsAnimating(false)
-      }, 400)
-    }, 1750);
+      }, 500)
+    }, 3000);
 
     // Update time every second
     const timeInterval = setInterval(() => {
@@ -145,6 +145,7 @@ export default function NameCard() {
                       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif',
                     }}
                   >
+                    Madhurya
                     Madhurya
                   </p>
                   <p className="text-lg font-mono font-light text-zinc-500/90 transition-all duration-500 ease-out">

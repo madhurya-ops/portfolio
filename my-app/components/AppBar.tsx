@@ -8,8 +8,10 @@ import {
   LinkedinIcon,
   MailIcon,
   MessageCircleIcon,
-  BookText,
+  RocketIcon,
   SquareUserRound,
+  Sun,
+  Moon
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -33,31 +35,31 @@ const dockItems = [
   {
     name: "Blog",
     href: "/blog",
-    icon: <BookText className="text-white"/>,
+    icon: <RocketIcon className="text-white"/>,
   },
   {
     name: "Art",
     href: "/art",
-    icon: <ApertureIcon className="text-white"/>
+    icon: <ApertureIcon className="text-white"/>,
   },
   {
     name: "Github",
-    href: "https://github.com/Chai-B",
+    href: "https://github.com/madhurya-ops",
     icon: <GithubIcon className="text-white"/>,
   },
   {
     name: "Linkedin",
-    href: "https://www.linkedin.com/in/chaitanyabansal1650/",
+    href: "https://www.linkedin.com/in/madhurya-mishra/",
     icon: <LinkedinIcon className="text-white"/>,
   },
   {
     name: "Resume",
-    href: "https://drive.google.com/file/d/1neP9jAwtsWXcUqXdObqMfTG50CgonOBv/view?usp=sharing",
+    href: "https://drive.google.com/file/d/10PxxSBUCXdJxS07pkpzor3U2x-52hGta/view?usp=drive_link",
     icon: <SquareUserRound className="text-white"/>,
   },
   {
     name: "Email",
-    href: "mailto:bansalchaitanya1234@gmail.com",
+    href: "mailto:madhuryamishra@gmail.com",
     icon: <MailIcon className="text-white"/>,
   },
 ];

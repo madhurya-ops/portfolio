@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { HomeDock } from "@/components/AppBar";
 import Image from "next/image";
@@ -21,17 +23,17 @@ const GalleryPage = () => {
     const aspectRatio = w / h;
     const isWide = aspectRatio > 1.5;
     const isTall = aspectRatio < 0.7;
-    
+
     return `${isWide ? "lg:col-span-2" : ""} ${isTall ? "lg:row-span-2" : ""}`.trim();
   };
 
   const getContainerStyle = (w: number, h: number) => ({
     aspectRatio: `${w} / ${h}`,
-    background: "radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%)"
+    background: "radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%)",
   });
 
   return (
-    <div className="min-h-screen bg-black p-2 pt-6">
+    <>
       <div className="mx-auto grid auto-rows-min grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {images.map((image, index) => (
           <div
@@ -40,7 +42,7 @@ const GalleryPage = () => {
             style={getContainerStyle(image.w, image.h)}
           >
             <Image
-              src={image.src || "/placeholder.svg"}
+              src={image.src}
               alt={`Gallery image ${index + 1}`}
               fill
               className="object-cover"
@@ -49,7 +51,7 @@ const GalleryPage = () => {
         ))}
       </div>
       <HomeDock />
-    </div>
+    </>
   );
 };
 

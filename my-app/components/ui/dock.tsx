@@ -55,13 +55,22 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
 
     const renderChildren = () => {
       return React.Children.map(children, (child) => {
-        if (!React.isValidElement<DockIconProps>(child)) return child;
-        return React.cloneElement(child, {
-          mouseX: mouseX,
-          magnification: magnification,
-          distance: distance,
-          isMobile: isMobile,
-        });
+        if (!React.isValidElement(child)) return child;
+        
+        // Only pass dock props to DockIcon components
+        // Check if the child has the displayName of DockIcon
+        if (child.type && typeof child.type === 'function' && 
+            (child.type as any).displayName === 'DockIcon') {
+          return React.cloneElement(child as React.ReactElement<DockIconProps>, {
+            mouseX: mouseX,
+            magnification: magnification,
+            distance: distance,
+            isMobile: isMobile,
+          });
+        }
+        
+        // Return other elements as-is
+        return child;
       });
     };
 
@@ -155,7 +164,6 @@ const DockIcon = ({
             "flex aspect-square items-center justify-center rounded-full",
             className,
           )}
-          {...props}
         >
           {children}
         </motion.a>
