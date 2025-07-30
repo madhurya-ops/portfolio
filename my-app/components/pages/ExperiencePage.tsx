@@ -312,7 +312,7 @@ const TimelineCard = React.memo(function TimelineCard({ item, index }: TimelineC
                     }}
                     disabled={!item.link}
                   >
-                    {item.link ? 'View Project' : 'Details'}
+                    {item.link ? 'Details' : 'Details'}
                   </Button>
                 </div>
               </motion.div>
