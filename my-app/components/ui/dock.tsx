@@ -60,8 +60,8 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
         // Only pass dock props to DockIcon components
         // Check if the child has the displayName of DockIcon
         if (child.type && typeof child.type === 'function' && 
-            (child.type as any).displayName === 'DockIcon') {
-          return React.cloneElement(child as React.ReactElement<DockIconProps>, {
+            (child.type as React.ComponentType<React.PropsWithChildren<{}>>).displayName === 'DockIcon') {
+          return React.cloneElement(child as React.ReactElement<any>, {
             mouseX: mouseX,
             magnification: magnification,
             distance: distance,
@@ -97,7 +97,6 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
 Dock.displayName = "Dock";
 
 interface DockIconProps {
-
   className?: string;
   magnification?: number;
   distance?: number;
@@ -109,20 +108,22 @@ interface DockIconProps {
 }
 
 const DockIcon = ({
-  magnification = DEFAULT_MAGNIFICATION,
-  distance = DEFAULT_DISTANCE,
+  magnification,
+  distance,
   mouseX,
   className,
   href,
   children,
-  isMobile = false,
+  isMobile,
   tooltip,
-  ...props
 }: DockIconProps) => {
   const ref = useRef<HTMLAnchorElement>(null);
 
   const initialMouseX = useMotionValue(0);
   const mouseXValue = mouseX ?? initialMouseX;
+
+  const effectiveDistance = distance ?? DEFAULT_DISTANCE;
+  const effectiveMagnification = magnification ?? DEFAULT_MAGNIFICATION;
 
   const distanceCalc = useTransform(mouseXValue, (val: number) => {
     if (isMobile) return 0;
@@ -132,8 +133,8 @@ const DockIcon = ({
 
   const widthSync = useTransform<number, number>(
     distanceCalc,
-    [-distance, 0, distance],
-    [40, magnification, 40]
+    [-effectiveDistance, 0, effectiveDistance],
+    [40, effectiveMagnification, 40]
   );
 
   const width = useSpring(widthSync, {
