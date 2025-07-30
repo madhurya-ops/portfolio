@@ -33,41 +33,51 @@ import React, {
   }
   
   const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-    const [theme, setThemeState] = useState<Theme>(() => {
-      if (typeof window !== "undefined") {
-        const savedTheme = localStorage.getItem("theme");
-        if (savedTheme === "light" || savedTheme === "dark") {
-          return savedTheme;
-        }
-        // Check system preference
-        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      }
-      return "light";
-    });
+    const [theme, setThemeState] = useState<Theme>("light"); // Always start with light to avoid hydration mismatch
+    const [mounted, setMounted] = useState(false);
   
+    // Initialize theme after component mounts to avoid hydration mismatch
     useEffect(() => {
-      document.documentElement.classList.remove("light", "dark");
-      document.documentElement.classList.add(theme);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("theme", theme);
+      setMounted(true);
+      
+      // Get theme from localStorage or system preference
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "light" || savedTheme === "dark") {
+        setThemeState(savedTheme);
+      } else {
+        // Check system preference
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        setThemeState(systemTheme);
       }
-    }, [theme]);
+    }, []);
+
+    useEffect(() => {
+      if (mounted) {
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+          document.documentElement.classList.remove("light", "dark");
+          document.documentElement.classList.add(theme);
+          localStorage.setItem("theme", theme);
+        });
+      }
+    }, [theme, mounted]);
+
   
     // Listen for system theme changes
     useEffect(() => {
-      if (typeof window !== "undefined") {
-        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-        const handleChange = (e: MediaQueryListEvent) => {
-          // Only auto-switch if no manual preference is saved
-          if (!localStorage.getItem("theme")) {
-            setThemeState(e.matches ? "dark" : "light");
-          }
-        };
-  
-        mediaQuery.addEventListener("change", handleChange);
-        return () => mediaQuery.removeEventListener("change", handleChange);
-      }
-    }, []);
+      if (!mounted) return;
+      
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = (e: MediaQueryListEvent) => {
+        // Only auto-switch if no manual preference is saved
+        if (!localStorage.getItem("theme")) {
+          setThemeState(e.matches ? "dark" : "light");
+        }
+      };
+
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }, [mounted]);
   
     const toggleTheme = useCallback(() => {
       setThemeState((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
@@ -78,6 +88,17 @@ import React, {
         setThemeState(newTheme);
       }
     }, []);
+
+    // Don't render children until mounted to prevent hydration mismatch
+    if (!mounted) {
+      return (
+        <ThemeContext.Provider
+          value={{ theme: "light", setTheme: setSpecificTheme, toggleTheme }}
+        >
+          {children}
+        </ThemeContext.Provider>
+      );
+    }
   
     return (
       <ThemeContext.Provider
@@ -89,4 +110,3 @@ import React, {
   };
   
   export default ThemeProvider;
-  

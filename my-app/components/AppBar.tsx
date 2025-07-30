@@ -9,7 +9,7 @@ import {
   LinkedinIcon,
   MailIcon,
   MessageCircleIcon,
-  RocketIcon,
+  BookText,
   SquareUserRound,
   Sun,
   Moon
@@ -36,12 +36,12 @@ const dockItems = [
   {
     name: "Blog",
     href: "/blog",
-    icon: <RocketIcon className="text-white"/>,
+    icon: <BookText className="text-white"/>,
   },
   {
     name: "Art",
     href: "/art",
-    icon: <ApertureIcon className="text-white"/>,
+    icon: <ApertureIcon className="text-white"/>
   },
   {
     name: "Github",

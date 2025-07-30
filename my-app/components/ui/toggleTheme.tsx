@@ -8,6 +8,24 @@ const ThemeToggle: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
   const isLandingPage = pathname === "/";
+  const [mounted, setMounted] = React.useState(false);
+
+  // Prevent hydration mismatch by only rendering after mount
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="ghost"
+        size="lg"
+        className="bg-transparent hover:bg-transparent transition-all duration-300 border-none outline-none focus:outline-none opacity-50"
+      >
+        <Sun className="w-8 h-8 text-white transition-all duration-300 stroke-3" />
+      </Button>
+    );
+  }
 
   const handleToggle = (e: React.MouseEvent) => {
     // Prevent any default behavior
