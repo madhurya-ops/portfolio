@@ -79,15 +79,6 @@ const timelineData: TimelineItem[] = [
     skills: ["Data Science", "Python", "Data Governance", "User-Centric Design", "Analytics"],
     link: "https://drive.google.com/file/d/1neP9jAwtsWXcUqXdObqMfTG50CgonOBv/view?usp=sharing",
   },
-  {
-    id: "8",
-    tagline: "2022 - 2026",
-    heading: "BTech - Electronics & Computer Science Engineering",
-    description: "Currently pursuing Bachelor's degree at KIIT University, focusing on advanced programming and machine learning concepts.",
-    details: "Comprehensive coursework covering Python, Java, HTML, CSS, JavaScript, ReactJs, NodeJs, MySQL, C programming, Machine Learning, Deep Learning, Computer Vision, DSA, OOP, DBMS, OS, Probability & Statistics, and emerging technologies like LLM and RAG systems.",
-    skills: ["Python", "Java", "JavaScript", "ReactJs", "NodeJs", "MySQL", "Machine Learning", "Deep Learning", "Computer Vision", "DSA"],
-    link: "https://drive.google.com/file/d/1neP9jAwtsWXcUqXdObqMfTG50CgonOBv/view?usp=sharing",
-  },
 ]
 
 // ========================================
