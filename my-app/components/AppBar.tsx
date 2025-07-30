@@ -8,7 +8,7 @@ import {
   LinkedinIcon,
   MailIcon,
   MessageCircleIcon,
-  BookText,
+  RocketIcon,
   SquareUserRound,
   Sun,
   Moon
@@ -35,12 +35,12 @@ const dockItems = [
   {
     name: "Blog",
     href: "/blog",
-    icon: <BookText className="text-white"/>,
+    icon: <RocketIcon className="text-white"/>,
   },
   {
     name: "Art",
     href: "/art",
-    icon: <ApertureIcon className="text-white"/>
+    icon: <ApertureIcon className="text-white"/>,
   },
   {
     name: "Github",
@@ -85,9 +85,6 @@ export function HomeDock() {
             {item.icon}
           </DockIcon>
         ))}
-        {/* Remove DockIcon wrapper and just render ThemeToggle directly */}
-        <div className="flex items-center justify-center p-2">
-        </div>
       </Dock>
     </div>
   );
