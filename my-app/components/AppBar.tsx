@@ -7,10 +7,8 @@ import {
   ApertureIcon,
   LinkedinIcon,
   MailIcon,
-  MessageCircleIcon,
   RocketIcon,
-  SquareUserRound,
-  Sun
+  SquareUserRound
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 

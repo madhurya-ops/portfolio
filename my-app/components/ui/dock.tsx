@@ -21,6 +21,17 @@ export interface DockProps extends VariantProps<typeof dockVariants> {
   children: React.ReactNode;
 }
 
+interface DockIconProps {
+  className?: string;
+  magnification?: number;
+  distance?: number;
+  mouseX?: MotionValue<number>;
+  children?: React.ReactNode;
+  isMobile?: boolean;
+  href: string;
+  tooltip?: string;
+}
+
 const DEFAULT_MAGNIFICATION = 60;
 const DEFAULT_DISTANCE = 140;
 
@@ -60,7 +71,7 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
         // Only pass dock props to DockIcon components
         // Check if the child has the displayName of DockIcon
         if (child.type && typeof child.type === 'function' && 
-            (child.type as React.ComponentType<any>).displayName === 'DockIcon') {
+            (child.type as React.ComponentType<DockIconProps>).displayName === 'DockIcon') {
           return React.cloneElement(child as React.ReactElement<DockIconProps>, {
             mouseX: mouseX,
             magnification: magnification,
