@@ -4,7 +4,6 @@ import React, { useRef, useState, useCallback, useMemo } from "react"
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { HomeDock } from "@/components/AppBar"
-import Image from "next/image" // 🔄 ADDED: Import Next.js Image
 
 // ========================================
 // TYPE DEFINITIONS & INTERFACES

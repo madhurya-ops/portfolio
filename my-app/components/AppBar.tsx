@@ -10,8 +10,7 @@ import {
   MessageCircleIcon,
   RocketIcon,
   SquareUserRound,
-  Sun,
-  Moon
+  Sun
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 

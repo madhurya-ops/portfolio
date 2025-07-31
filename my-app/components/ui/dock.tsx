@@ -60,7 +60,7 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
         // Only pass dock props to DockIcon components
         // Check if the child has the displayName of DockIcon
         if (child.type && typeof child.type === 'function' && 
-            (child.type as any).displayName === 'DockIcon') {
+            (child.type as React.ComponentType<any>).displayName === 'DockIcon') {
           return React.cloneElement(child as React.ReactElement<DockIconProps>, {
             mouseX: mouseX,
             magnification: magnification,
@@ -117,7 +117,6 @@ const DockIcon = ({
   children,
   isMobile = false,
   tooltip,
-  ...props
 }: DockIconProps) => {
   const ref = useRef<HTMLAnchorElement>(null);
 
