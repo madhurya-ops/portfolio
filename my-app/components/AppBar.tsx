@@ -7,7 +7,7 @@ import {
   ApertureIcon,
   LinkedinIcon,
   MailIcon,
-  MessageCircleIcon,
+  //MessageCircleIcon,
   BookText,
   SquareUserRound,
 } from "lucide-react";

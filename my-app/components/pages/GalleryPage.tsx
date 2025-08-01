@@ -10,7 +10,7 @@ const calculateGridClass = (w: number, h: number): string => {
   const isWide = aspectRatio > 1.5;
   const isTall = aspectRatio < 0.7;
   
-  let classes = [];
+  const classes = [];
   if (isWide) classes.push("lg:col-span-2");
   if (isTall) classes.push("lg:row-span-2");
   
