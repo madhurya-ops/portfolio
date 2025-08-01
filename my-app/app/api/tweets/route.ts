@@ -1,159 +1,138 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
 
-// Twitter API v2 configuration
-const TWITTER_API_BASE = 'https://api.twitter.com/2';
-const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
+// Frontend Tweet interface (what your blog page expects)
+interface FrontendTweet {
+  id: string;
+  user: {
+    name: string;
+    username: string;
+    avatar: string;
+  };
+  content: string;
+  timestamp: string;
+  likes: number;
+  retweets: number;
+  replies: number;
+}
 
-// Fallback mock data in case Twitter API is not configured
-const fallbackTweets = [
-  {
-    id: '1',
+// Database Tweet interface (what comes from Supabase)
+interface DatabaseTweet {
+  id: string;
+  tweet_id: string;
+  content: string;
+  author_name: string;
+  author_username: string;
+  author_profile_image?: string;
+  created_at: string;
+  retweet_count: number;
+  like_count: number;
+  reply_count: number;
+  cached_at: string;
+  is_active: boolean;
+}
+
+// Transform database tweet to frontend format
+function transformDatabaseTweet(dbTweet: DatabaseTweet): FrontendTweet {
+  return {
+    id: dbTweet.tweet_id,
     user: {
-      name: 'Madhurya Mishra',
-      username: 'with_maddy_',
-      avatar: 'https://pbs.twimg.com/profile_images/1234567890/default_avatar_400x400.png',
+      name: dbTweet.author_name,
+      username: dbTweet.author_username,
+      avatar: dbTweet.author_profile_image || 'https://pbs.twimg.com/profile_images/1234567890/default_avatar_400x400.png'
     },
-    content: 'Just built an amazing portfolio site with Next.js and TypeScript! 🚀',
-    timestamp: '2h',
-    likes: 42,
-    retweets: 8,
-    replies: 3,
-  },
-  {
-    id: '2',
-    user: {
-      name: 'Tech Enthusiast',
-      username: 'techie_dev',
-      avatar: 'https://pbs.twimg.com/profile_images/1234567891/tech_avatar_400x400.png',
-    },
-    content: 'Working on some exciting AI projects with LLMs and RAG systems. The future is here! 🤖',
-    timestamp: '5h',
-    likes: 128,
-    retweets: 24,
-    replies: 15,
-  },
-  {
-    id: '3',
-    user: {
-      name: 'Code Master',
-      username: 'codemaster',
-      avatar: 'https://pbs.twimg.com/profile_images/1234567892/code_avatar_400x400.png',
-    },
-    content: 'Pro tip: Always write clean, maintainable code. Your future self will thank you! 💻',
-    timestamp: '1d',
-    likes: 256,
-    retweets: 64,
-    replies: 32,
-  },
-  {
-    id: '4',
-    user: {
-      name: 'Web Dev',
-      username: 'webdev_pro',
-      avatar: 'https://pbs.twimg.com/profile_images/1234567893/web_avatar_400x400.png',
-    },
-    content: 'Just discovered some amazing React patterns. Sharing a blog post soon! ⚛️',
-    timestamp: '2d',
-    likes: 89,
-    retweets: 12,
-    replies: 7,
-  },
-];
-
-async function fetchTweetsFromTwitter() {
-  if (!TWITTER_BEARER_TOKEN) {
-    throw new Error('Twitter Bearer Token not configured');
-  }
-
-  try {
-    // Fetch tweets from a specific user or search query
-    // You can modify this URL to fetch from specific users or search terms
-    const response = await fetch(
-      `${TWITTER_API_BASE}/tweets/search/recent?query=portfolio%20nextjs%20typescript&max_results=10&tweet.fields=created_at,public_metrics&user.fields=profile_image_url,name,username&expansions=author_id`,
-      {
-        headers: {
-          'Authorization': `Bearer ${TWITTER_BEARER_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Twitter API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    // Transform Twitter API response to match our expected format
-    const tweets = data.data?.map((tweet: any) => {
-      const user = data.includes?.users?.find((u: any) => u.id === tweet.author_id);
-      return {
-        id: tweet.id,
-        user: {
-          name: user?.name || 'Unknown User',
-          username: user?.username || 'unknown',
-          avatar: user?.profile_image_url || 'https://pbs.twimg.com/profile_images/1234567890/default_avatar_400x400.png',
-        },
-        content: tweet.text,
-        timestamp: formatTimestamp(tweet.created_at),
-        likes: tweet.public_metrics?.like_count || 0,
-        retweets: tweet.public_metrics?.retweet_count || 0,
-        replies: tweet.public_metrics?.reply_count || 0,
-      };
-    }) || [];
-
-    return tweets;
-  } catch (error) {
-    console.error('Error fetching from Twitter API:', error);
-    throw error;
+    content: dbTweet.content,
+    timestamp: formatTimestamp(dbTweet.created_at),
+    likes: dbTweet.like_count,
+    retweets: dbTweet.retweet_count,
+    replies: dbTweet.reply_count
   }
 }
 
 function formatTimestamp(createdAt: string): string {
-  const now = new Date();
-  const tweetDate = new Date(createdAt);
-  const diffInHours = Math.floor((now.getTime() - tweetDate.getTime()) / (1000 * 60 * 60));
+  const now = new Date()
+  const tweetDate = new Date(createdAt)
+  const diffInHours = Math.floor((now.getTime() - tweetDate.getTime()) / (1000 * 60 * 60))
   
-  if (diffInHours < 1) return 'now';
-  if (diffInHours < 24) return `${diffInHours}h`;
+  if (diffInHours < 1) return 'now'
+  if (diffInHours < 24) return `${diffInHours}h`
   
-  const diffInDays = Math.floor(diffInHours / 24);
-  return `${diffInDays}d`;
+  const diffInDays = Math.floor(diffInHours / 24)
+  return `${diffInDays}d`
 }
 
 export async function GET() {
   try {
-    let tweets;
-    let warning = null;
+    console.log('🔍 Fetching tweets from Supabase database only...')
+    
+    const { data: cachedTweets, error: supabaseError } = await supabase
+      .from('tweets')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(8)
 
-    // Try to fetch from Twitter API if configured
-    if (TWITTER_BEARER_TOKEN) {
-      try {
-        tweets = await fetchTweetsFromTwitter();
-      } catch (error) {
-        console.warn('Twitter API failed, using fallback data:', error);
-        tweets = fallbackTweets;
-        warning = 'Twitter API failed, showing fallback data. Check your API credentials.';
-      }
-    } else {
-      // Use fallback data if no Twitter API token is configured
-      tweets = fallbackTweets;
-      warning = 'Twitter API not configured. Set TWITTER_BEARER_TOKEN environment variable to fetch real tweets.';
+    if (supabaseError) {
+      console.error('❌ Supabase query error:', supabaseError)
+      return NextResponse.json(
+        {
+          error: 'Database query failed',
+          message: 'Unable to fetch tweets from database',
+          details: supabaseError.message
+        },
+        { status: 500 }
+      )
     }
 
-    return NextResponse.json({ 
+    if (!cachedTweets || cachedTweets.length === 0) {
+      console.log('⚠️ No tweets found in Supabase database')
+      return NextResponse.json(
+        {
+          error: 'No tweets available',
+          message: 'No tweets found in database. Please cache some tweets first.',
+          tweets: []
+        },
+        { status: 404 }
+      )
+    }
+
+    // Transform database tweets to frontend format
+    const tweets = cachedTweets.map(transformDatabaseTweet)
+    
+    // Check cache freshness
+    const newestTweet = cachedTweets[0]
+    const cacheAge = Date.now() - new Date(newestTweet.cached_at).getTime()
+    const ageMinutes = Math.floor(cacheAge / (1000 * 60))
+    
+    console.log(`✅ Serving ${tweets.length} tweets from Supabase database`)
+    console.log(`📅 Cache age: ${ageMinutes} minutes old`)
+
+    let warning = null
+    if (ageMinutes > 60) {
+      warning = `Cache is ${ageMinutes} minutes old - consider refreshing tweets`
+    }
+
+    return NextResponse.json({
       tweets,
-      warning
-    });
-  } catch (error) {
-    console.error('Error in tweets API:', error);
+      source: 'supabase-database',
+      warning,
+      meta: {
+        count: tweets.length,
+        cacheAge: `${ageMinutes} minutes`,
+        lastUpdated: newestTweet.cached_at
+      }
+    })
+
+  } catch (error: any) {
+    console.error('❌ Unexpected error:', error)
+    
     return NextResponse.json(
-      { 
-        error: 'Failed to fetch tweets',
-        tweets: fallbackTweets,
-        warning: 'Using fallback data due to error.'
+      {
+        error: 'Server error',
+        message: 'An unexpected error occurred while fetching tweets',
+        details: error.message
       },
       { status: 500 }
-    );
+    )
   }
 }

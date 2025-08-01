@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import { HomeDock } from "@/components/AppBar";
-import  {TweetSkeleton}  from "@/components/magicui/TweetCard";
+import { TweetSkeleton } from "@/components/magicui/TweetCard";
 import Image from "next/image";
 
 // Type definition matching your API response
@@ -28,7 +28,7 @@ function PictureCard({ src, alt }: { src: string; alt: string }) {
     <div className="relative overflow-hidden rounded-xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] bg-white/5 backdrop-blur-md border border-neutral-800 z-30">
       <div 
         className="relative w-full"
-        style={{ aspectRatio: '16/9' }} // Landscape aspect ratio
+        style={{ aspectRatio: '16/9' }}
       >
         <Image
           src={src}
@@ -46,8 +46,8 @@ function PictureCard({ src, alt }: { src: string; alt: string }) {
  */
 function PictureCardsRow({ images }: { images: Array<{ src: string; alt: string }> }) {
   return (
-    <div className="w-full px-2 mb-6 relative z-30"> {/* Minimal padding to prevent cards from touching screen edges */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-30"> {/* Reduced gap for more space usage */}
+    <div className="w-full px-2 mb-6 relative z-30">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-30">
         {images.map((image, index) => (
           <PictureCard 
             key={index}
@@ -86,7 +86,6 @@ function TweetCard({ tweet }: { tweet: Tweet }) {
               </div>
             </div>
           </div>
-          {/* Updated X Icon using the SVG file from public directory */}
           <img
             src="/x.svg"
             alt="X (Twitter) Icon"
@@ -147,7 +146,6 @@ function AnimatedRow({
   const [isPaused, setIsPaused] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
-  // Simplified animation function
   const animate = useCallback(() => {
     const row = rowRef.current;
     if (!row || isPaused || !isReady) return;
@@ -156,7 +154,6 @@ function AnimatedRow({
     const clientWidth = row.clientWidth;
     const maxScroll = scrollWidth - clientWidth;
 
-    // Skip if not scrollable
     if (maxScroll <= 0) return;
 
     if (direction === "left") {
@@ -173,25 +170,21 @@ function AnimatedRow({
       }
     }
 
-    // Schedule next animation frame
     timeoutRef.current = setTimeout(() => {
       animationFrameRef.current = requestAnimationFrame(animate);
     }, speed);
   }, [direction, speed, isPaused, isReady]);
 
-  // Initialize the row
   useEffect(() => {
     const initializeRow = () => {
       const row = rowRef.current;
       if (!row) return;
 
-      // Wait for content to load
       const checkContent = () => {
         const scrollWidth = row.scrollWidth;
         const clientWidth = row.clientWidth;
         
         if (scrollWidth > clientWidth) {
-          // Set initial position for right-scrolling rows
           if (direction === "right") {
             row.scrollLeft = scrollWidth - clientWidth;
           } else {
@@ -199,22 +192,18 @@ function AnimatedRow({
           }
           setIsReady(true);
         } else {
-          // Retry if content hasn't loaded yet
           setTimeout(checkContent, 100);
         }
       };
 
-      // Delay initialization for lower rows
       setTimeout(checkContent, rowIndex * 200);
     };
 
     initializeRow();
   }, [direction, rowIndex]);
 
-  // Start animation when ready
   useEffect(() => {
     if (isReady && !isPaused) {
-      // Clear any existing animation
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -222,7 +211,6 @@ function AnimatedRow({
         clearTimeout(timeoutRef.current);
       }
 
-      // Start animation with a small delay
       setTimeout(() => {
         if (isReady && !isPaused) {
           animate();
@@ -230,7 +218,6 @@ function AnimatedRow({
       }, 100);
     }
 
-    // Cleanup function
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -275,7 +262,6 @@ function AnimatedRow({
         `}</style>
         
         <div className="flex">
-          {/* Ensure enough content for seamless scrolling */}
           {[...tweets, ...tweets, ...tweets, ...tweets, ...tweets].map((tweet, index) => (
             <TweetCard key={`${tweet.id}-${index}-row${rowIndex}`} tweet={tweet} />
           ))}
@@ -286,14 +272,14 @@ function AnimatedRow({
 }
 
 /**
- * Main Blog Page Component
+ * Main Blog Page Component - NO MOCK DATA EVER DISPLAYED
  */
 export default function BlogPage() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dataSource, setDataSource] = useState<string>('');
 
-  // Picture data - you can customize these images
   const pictureData = [
     { src: "/blog1.jpg", alt: "Gallery image 1" },
     { src: "/blog2.jpg", alt: "Gallery image 2" },
@@ -313,8 +299,29 @@ export default function BlogPage() {
         
         const data = await response.json();
         
-        if (data.tweets && Array.isArray(data.tweets)) {
-          setTweets(data.tweets);
+        // 🚫 REJECT FALLBACK/MOCK DATA - Only accept real tweets
+        if (data.source === 'fallback-mock' || data.source === 'fallback-error') {
+        throw new Error('Only mock data available. Real tweets from @with_maddy_ not found.');
+      }
+
+if (data.tweets && Array.isArray(data.tweets)) {
+  // Accept tweets from Supabase database (the actual source your API returns)
+  if (data.source !== 'supabase-database') {
+    throw new Error(`Unexpected data source: ${data.source}. Expected 'supabase-database'.`);
+  }
+  
+  // All tweets from supabase-database are valid - no need to filter
+  const realTweets = data.tweets;
+  
+  if (realTweets.length === 0) {
+    throw new Error('No tweets available in database.');
+  }
+
+          
+          setTweets(realTweets.slice(0, 8)); // Ensure max 8 tweets
+          setDataSource(data.source);
+          
+          console.log(`✅ Loaded ${realTweets.length} real tweets from: ${data.source}`);
           
           if (data.warning) {
             console.warn('API Warning:', data.warning);
@@ -323,9 +330,9 @@ export default function BlogPage() {
           throw new Error('Invalid tweet data format');
         }
       } catch (error) {
-        console.error('Failed to fetch tweets:', error);
+        console.error('Failed to fetch real tweets:', error);
         setError(error instanceof Error ? error.message : 'Failed to fetch tweets');
-        setTweets([]);
+        setTweets([]); // 🚫 NO FALLBACK DATA - Empty array instead of mock data
       } finally {
         setLoading(false);
       }
@@ -340,8 +347,8 @@ export default function BlogPage() {
     const minTweetsPerRow = 3;
     let allTweets = [...tweets];
     
-    // Ensure we have enough tweets for smooth scrolling
-    while (allTweets.length < minTweetsPerRow * 2) {
+    // Only duplicate if we have real tweets
+    while (allTweets.length < minTweetsPerRow * 2 && tweets.length > 0) {
       allTweets = [...allTweets, ...tweets];
     }
 
@@ -364,7 +371,6 @@ export default function BlogPage() {
         <LandingOverlay />
         <HomeDock />
         <div className="w-full relative z-10">
-          {/* Loading state with picture card skeletons - edge to edge */}
           <div className="w-full px-2 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[0, 1].map((index) => (
@@ -395,43 +401,60 @@ export default function BlogPage() {
     );
   }
 
-  if (error) {
+  // 🚫 SHOW ERROR INSTEAD OF MOCK DATA
+  if (error || tweets.length === 0) {
     return (
       <div className="min-h-screen bg-black relative overflow-hidden flex flex-col items-center justify-center">
         <LandingOverlay />
         <HomeDock />
-        <div className="w-full max-w-9xl px-4 relative z-10 text-center">
+        <div className="w-full max-w-4xl px-4 relative z-10 text-center">
           <div className="text-white">
-            <h2 className="text-xl font-semibold mb-2">Failed to load tweets</h2>
-            <p className="text-gray-400 mb-4">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-            >
-              Retry
-            </button>
+            <h2 className="text-2xl font-semibold mb-4">Real Tweets Not Available</h2>
+            <p className="text-gray-400 mb-6">
+              {error || 'No tweets found from @with_maddy_. Please check your API configuration.'}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                🔄 Retry Loading Tweets
+              </button>
+              <button
+                onClick={() => window.open('https://twitter.com/with_maddy_', '_blank')}
+                className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                🐦 Visit @with_maddy_ on X
+              </button>
+            </div>
+            
+            {/* Show current data source for debugging */}
+            {dataSource && (
+              <p className="text-sm text-gray-500 mt-4">
+                Last attempted source: {dataSource}
+              </p>
+            )}
           </div>
         </div>
       </div>
     );
   }
 
+  // 🎉 ONLY SHOW REAL TWEETS
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       <HomeDock />
       
-      {/* Picture cards outside the overlay container */}
+      {/* Show data source indicator (for debugging) */}
+      
       <div className="w-full relative z-30 pt-6">
-        {/* First row of picture cards (top of page) - edge to edge */}
         <PictureCardsRow images={pictureData.slice(0, 2)} />
       </div>
       
-      {/* Overlay and main content container */}
       <div className="relative">
         <LandingOverlay />
         
         <div className="w-full relative z-10">
-          {/* First animated tweet row */}
           {tweetRows[0] && (
             <AnimatedRow
               tweets={tweetRows[0]}
@@ -440,17 +463,13 @@ export default function BlogPage() {
               rowIndex={0}
             />
           )}
-          
-          {/* Second row of picture cards (middle) - outside overlay again */}
         </div>
       </div>
       
-      {/* Second picture cards row */}
       <div className="w-full relative z-30">
         <PictureCardsRow images={pictureData.slice(2, 4)} />
       </div>
       
-      {/* Final tweet row with overlay */}
       <div className="relative">
         <LandingOverlay />
         <div className="w-full relative z-10">
@@ -466,5 +485,4 @@ export default function BlogPage() {
       </div>
     </div>
   );
-  
 }
