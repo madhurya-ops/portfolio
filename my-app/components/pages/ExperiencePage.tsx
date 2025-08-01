@@ -198,18 +198,18 @@ const animationVariants = {
       backgroundColor: "#6b7280",
       borderColor: "transparent",
       boxShadow: "0 0 4px rgba(107, 114, 128, 0.2)",
-      transition: { duration: 0.2, ease: "easeOut" } // Fixed: Use string instead of array
+      // Remove transition from the animation object - let Framer Motion handle it
     },
     active: {
       scale: 1.4,
       backgroundColor: "#ffffff",
       borderColor: "#ffffff",
       boxShadow: "0 0 15px rgba(255, 255, 255, 0.4)",
-      transition: { duration: 0.2, ease: "easeOut" } // Fixed: Use string instead of array
+      // Remove transition from the animation object
     },
     hover: {
       scale: 1.6,
-      transition: { duration: 0.15, ease: "easeOut" } // Fixed: Use string instead of array
+      // Remove transition from the animation object
     }
   },
   card: {
@@ -217,13 +217,11 @@ const animationVariants = {
       opacity: 0, 
       y: 30, 
       scale: 0.95,
-      transition: { duration: 0.3, ease: "easeOut" } // Fixed: Use string instead of array
     },
     visible: { 
       opacity: 1, 
       y: 0, 
       scale: 1,
-      transition: { duration: 0.4, ease: "easeOut", delay: 0.1 } // Fixed: Use string instead of array
     }
   },
   skillTag: {
@@ -235,7 +233,6 @@ const animationVariants = {
       transition: {
         delay: i * 0.03,
         duration: 0.2,
-        ease: "easeOut" // Fixed: Use string instead of array
       }
     })
   }
