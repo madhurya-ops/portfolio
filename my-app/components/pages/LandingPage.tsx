@@ -1,30 +1,65 @@
-import React from "react";
+"use client";
+import React, { useMemo } from "react";
 import { Boxes } from "@/components/Boxes";
 import { HomeDock } from "@/components/AppBar";
 import NameCard from "@/components/magicui/NameCard";
 
-// Overlay for the radial mask effect
-const LandingOverlay = () => (
-  <div className="absolute inset-0 w-full h-full bg-neutral-950 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
-);
+// Memoized overlay component for better performance
+const LandingOverlay = React.memo(() => (
+  <div 
+    className="absolute inset-0 w-full h-full bg-neutral-950 z-20 pointer-events-none"
+    style={{
+      maskImage: 'radial-gradient(transparent,white)',
+      WebkitMaskImage: 'radial-gradient(transparent,white)',
+      willChange: 'auto'
+    }}
+  />
+));
+LandingOverlay.displayName = 'LandingOverlay';
 
 // Main Landing Page component
-export const LandingPage = () => (
-  <div
-    className="h-96 relative w-full overflow-hidden bg-neutral-950 flex flex-col items-center justify-center rounded-lg min-h-screen"
-  >
-    <LandingOverlay />
-    <Boxes />
-    <div className="z-100"style={{
-        // transform: Applies a series of 2D/3D transformations to the grid for a dynamic, skewed look.
-        // You can adjust skew, scale, rotation, or remove for a flat grid.
-        transform: `translate(2%,-2%) scale(1) rotate(0deg) translateZ(0)`,
-      }}>
-    <NameCard/>
-    </div>
-    <HomeDock />
-  </div>
-  
-);
+export const LandingPage = () => {
+  // Memoized transform style for NameCard positioning
+  const nameCardStyle = useMemo(() => ({
+    transform: `translate(2%,-2%) scale(1) rotate(0deg) translateZ(0)`,
+    willChange: 'transform'
+  }), []);
 
-export default LandingPage; 
+  // Memoized container style with custom cursor for grids
+  const containerStyle = useMemo(() => ({
+    cursor: 'url(/cursor.svg), auto'
+  }), []);
+
+  return (
+    <>
+      {/* Custom cursor styles for the grid boxes */}
+      <style jsx global>{`
+        .boxes-container * {
+          cursor: url(/cursor.svg), auto !important;
+        }
+        
+        .boxes-container .cell,
+        .boxes-container [class*="box"],
+        .boxes-container [class*="grid"] {
+          cursor: url(/cursor.svg), auto !important;
+        }
+      `}</style>
+      
+      <div 
+        className="h-96 relative w-full overflow-hidden bg-neutral-950 flex flex-col items-center justify-center rounded-lg min-h-screen"
+        style={containerStyle}
+      >
+        <LandingOverlay />
+        <div className="boxes-container">
+          <Boxes />
+        </div>
+        <div className="z-50" style={nameCardStyle}>
+          <NameCard />
+        </div>
+        <HomeDock />
+      </div>
+    </>
+  );
+};
+
+export default LandingPage;
