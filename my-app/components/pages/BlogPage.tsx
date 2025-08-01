@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo, memo } from "react"
 import { HomeDock } from "@/components/AppBar";
-import { TweetSkeleton } from "@/components/magicui/TweetCard";
 import Image from "next/image";
 
 // Type definition matching your API response
@@ -66,7 +65,7 @@ const TweetCard = memo(({ tweet }: { tweet: Tweet }) => (
       {/* Header with improved spacing */}
       <div className="flex flex-row justify-between tracking-tight">
         <div className="flex items-center space-x-3">
-          <img
+          <Image
             src={tweet.user.avatar}
             alt={`${tweet.user.username} profile`}
             height={40}
@@ -129,16 +128,14 @@ TweetCard.displayName = 'TweetCard';
 const AnimatedRow = memo(({
   tweets,
   direction,
-  speed = 30,
   rowIndex = 0,
 }: { 
   tweets: Tweet[]; 
   direction: "left" | "right"; 
-  speed?: number;
   rowIndex?: number;
 }) => {
   const rowRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | null>(null); // Fixed: Added null as initial value
   const [isPaused, setIsPaused] = useState(false);
   const [position, setPosition] = useState(() => direction === "right" ? -320 : 0);
 
@@ -339,7 +336,6 @@ export default function BlogPage() {
   const tweetRows = useMemo(() => {
     if (tweets.length === 0) return [];
 
-    const minRows = Math.max(2, Math.ceil(tweets.length / 3));
     const rowSize = Math.ceil(tweets.length / 2);
     
     return [
@@ -373,7 +369,6 @@ export default function BlogPage() {
             <AnimatedRow
               tweets={tweetRows[0]}
               direction="left"
-              speed={30}
               rowIndex={0}
             />
           )}
@@ -393,7 +388,6 @@ export default function BlogPage() {
             <AnimatedRow
               tweets={tweetRows[1]}
               direction="right"
-              speed={30}
               rowIndex={1}
             />
           )}
