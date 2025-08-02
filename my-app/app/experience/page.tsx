@@ -1,9 +1,9 @@
-import Experience from '@/components/pages/ExperiencePage';
+import ClientExperience from '@/components/clientexperience'
 
 export default function Page() {
   return (
     <div>
-      <Experience />
+      <ClientExperience />
     </div>
   )
 }

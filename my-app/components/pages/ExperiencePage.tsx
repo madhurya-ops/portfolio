@@ -1,13 +1,9 @@
 "use client"
 
-import React, { useRef, useState, useCallback, useMemo } from "react"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react"
+import { motion, useScroll, useInView, useAnimation } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { HomeDock } from "@/components/AppBar"
-
-// ========================================
-// TYPE DEFINITIONS & INTERFACES
-// ========================================
 
 interface TimelineItem {
   id: string
@@ -17,290 +13,314 @@ interface TimelineItem {
   details: string
   skills?: string[]
   link?: string
+  startDate: Date
+  endDate: Date
 }
-
-// ========================================
-// DYNAMIC TIMELINE DATA CONFIGURATION
-// ========================================
 
 const timelineData: TimelineItem[] = [
   {
     id: "1",
-    tagline: "July 2025 - Present",
-    heading: "HubApp - Productivity Dashboard",
-    description: "A modern productivity dashboard that integrates with multiple services (Google, Microsoft, GitHub, Apple) to provide a unified workspace experience.",
-    details: "Built with Next.js 14, TypeScript, Tailwind CSS, and Radix UI components on the frontend, and FastAPI with Firebase/Firestore for data storage. Implemented Auth0 for OAuth integration with multiple service providers. Created a comprehensive dashboard that aggregates data from Google Calendar/Gmail, Microsoft Outlook/Teams, GitHub, and Apple services. Fixed complex authentication flows, implemented secure cookie management, and added comprehensive error handling for all API calls.",
-    skills: ["Next.js", "TypeScript", "Tailwind CSS", "FastAPI", "Firebase", "Auth0", "OAuth", "Google APIs", "Microsoft APIs", "GitHub API"],
-    link: "https://github.com/Chai-B/HubApp",
-  },
-  {
-    id: "2",
     tagline: "June 2025 - Present",
-    heading: "Legal Document Parser",
+    heading: "LegalDoc",
     description: "Engineered a comprehensive legal document processing application with AI-powered analysis capabilities and user authentication system.",
     details: "Developed a full-stack application using React frontend and FastAPI backend with PostgreSQL authentication. Implemented Generative AI (LLM) to extract key clauses, obligations, penalties, and dates from complex legal texts. Built complete authentication system with JWT tokens, password hashing using Bcrypt, and comprehensive input validation. Created Docker containerization for easy deployment and added comprehensive API documentation with automated testing capabilities.",
     skills: ["React", "FastAPI", "PostgreSQL", "LLM", "NLP", "JWT", "Bcrypt", "Docker", "Python", "Generative AI"],
     link: "https://github.com/madhurya-ops/Legal-Document-Parser",
+    startDate: new Date("2025-06-01"),
+    endDate: new Date()
   },
   {
-    id: "3",
-    tagline: "May 2025 - June 2025",
-    heading: "Technical Intern",
-    description: "Studied and implemented concepts in Generative AI, Large Language Models (LLMs), and Retrieval Augmented Generation (RAG) to build AI solutions.",
-    details: "Developed APIs using FastAPI and created interactive AI-based web applications with Streamlit for model deployment. Worked extensively with Python to integrate GenAI models into backend services, optimizing workflows for AI application delivery.",
-    skills: ["Python", "FastAPI", "Streamlit", "Generative AI", "LLM", "RAG", "GenAI"],
-    link: "https://www.xebia.com",
-  },
-  {
-    id: "4",
+    id: "2",
     tagline: "April 2025",
     heading: "Stock Price LSTM Forecasting",
     description: "Engineered a 3-layer LSTM model (128-64-32 units) with dropout, batch normalization, and L2 regularization, achieving R² = 0.96.",
     details: "Trained on 5,000+ data points using EarlyStopping and learning rate scheduling, reducing validation loss by 70% and doubling convergence speed. Designed a time series pipeline with a 30-day lookback and MinMax scaling, improving model stability and reducing prediction variance by 15%. Visualized outputs with Matplotlib to track trends, enabling a 10% decrease in forecast deviation.",
     skills: ["Python", "LSTM", "Deep Learning", "Time Series", "Matplotlib", "Machine Learning"],
+    link: "https://github.com/madhurya-ops/Stock-Price-Prediction",
+    startDate: new Date("2025-04-01"),
+    endDate: new Date("2025-04-30")
   },
   {
-    id: "5",
-    tagline: "Nov 2024 - Present",
+    id: "3",
+    tagline: "Nov 2024",
     heading: "Bell's Palsy Severity Detection",
     description: "Engineered a ResNet50-based CNN to classify Bell's Palsy severity into 4 levels, achieving 98.79% accuracy for mouth analysis.",
     details: "Fine-tuned the last 20 layers of ResNet50 with transfer learning, optimizing training using Adam, cross-entropy loss, early stopping, and learning rate scheduling. Augmented 1,000+ images (from 14,000+) with rotation, zoom, flip, and shear to improve generalization and address class imbalance. Evaluated model performance using confusion matrices, precision, recall, F1-score, and ROC-AUC.",
     skills: ["Python", "ResNet50", "CNN", "Transfer Learning", "Computer Vision", "Deep Learning", "Machine Learning"],
+    link: "https://github.com/Chai-B/Bell-s-Palsy-Severity-Detection",
+    startDate: new Date("2024-11-01"),
+    endDate: new Date("2024-11-30")
   },
   {
-    id: "6",
+    id: "4",
     tagline: "May 2024 - July 2024",
-    heading: "Data Science Intern",
-    description: "Spearheaded the development of a digital platform aimed to empower India's 140M+ senior citizens, focusing on service accessibility and community engagement.",
-    details: "Analyzed 20+ key user and service data points to drive insights that improved platform design and usability for the elderly. Acquired practical knowledge of data governance, user-centric design, and cross-functional collaboration to create inclusive digital solutions for elderly users.",
-    skills: ["Data Science", "Python", "Data Governance", "User-Centric Design", "Analytics"],
-    link: "https://www.nic.in",
-  },
-  {
-    id: "7",
-    tagline: "June 2024",
-    heading: "Web Text Scraping/Analysis",
-    description: "Developed a Python script to scrape and analyze content from 100+ web pages using BeautifulSoup, NLTK, and requests.",
-    details: "Extracted 250,000+ words, calculating 15+ text metrics such as Fog Index, sentiment polarity, and subjectivity scores. Achieved 95%+ accuracy in text extraction, processing each page in under 3 seconds and exporting results to clean Excel/CSV formats.",
-    skills: ["Python", "BeautifulSoup", "NLTK", "Web Scraping", "NLP", "Data Analysis"],
-  },
-  {
-    id: "8",
-    tagline: "2022 - 2026",
-    heading: "BTech - Electronics & Computer Science Engineering",
-    description: "Currently pursuing Bachelor's degree at KIIT University with CGPA of 7.35, focusing on advanced programming and machine learning concepts.",
-    details: "Comprehensive coursework covering Python, Java, HTML, CSS, JavaScript, ReactJs, NodeJs, MySQL, C programming, Machine Learning, Deep Learning, Computer Vision, DSA, OOP, DBMS, OS, Probability & Statistics, and emerging technologies like LLM and RAG systems.",
-    skills: ["Python", "Java", "JavaScript", "ReactJs", "NodeJs", "MySQL", "Machine Learning", "Deep Learning", "Computer Vision", "DSA"],
-    link: "https://kiit.ac.in",
-  },
-]
-
-// ========================================
-// DYNAMIC SIDE CALCULATION UTILITY
-// ========================================
-
-const getSideForIndex = (index: number): "left" | "right" => {
-  return index % 2 === 0 ? "right" : "left"
-}
-
-// ========================================
-// TIMELINE DOT COMPONENT
-// ========================================
-
-interface TimelineDotProps {
-  index: number
-  totalItems: number
-  scrollProgress: number
-}
-
-const TimelineDot = React.memo(function TimelineDot({ index, scrollProgress }: TimelineDotProps) { // 🔄 FIXED: Removed unused totalItems
-  const dotPosition = (index + 0.5) / timelineData.length // 🔄 FIXED: Use actual data length
-  const isScrolledPast = scrollProgress >= dotPosition
+    heading: "Software Engineer",
+    description: "Developed a Flutter-based mobile app for tracking vital nutrition metrics in preterm infants, revolutionizing neonatal care through enhanced data handling and advanced validation.",
+    details: "Designed and deployed a cross-platform Flutter app for neonatal nutrition tracking, cutting manual effort by 60% and improving patient outcomes by 25%. Achieved 70% crash rate reduction and 30% faster load times through modular architecture and performance profiling.",
+    skills: ["Flutter", "Firebase", "Hive", "Mobile App Development", "Performance Optimization", "Cross-Platform Testing", "Data Validation", "Healthcare Informatics"],
+    link: "https://drive.google.com/file/d/10PxxSBUCXdJxS07pkpzor3U2x-52hGta/view?usp=drive_link",
+    startDate: new Date("2024-05-01"),
+    endDate: new Date("2024-07-31")
+  }
   
-  const animationValues = useMemo(() => ({
-    scale: isScrolledPast ? 1.4 : 1,
-    backgroundColor: isScrolledPast ? "#ffffff" : "#6b7280",
-    borderColor: isScrolledPast ? "#ffffff" : "#9ca3af",
-  }), [isScrolledPast])
+].sort((a, b) => b.startDate.getTime() - a.startDate.getTime())
+
+const useResponsive = () => {
+  const [dimensions, setDimensions] = useState({
+    width: 1200,
+    height: 800,
+    isMobile: false
+  })
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      const isMobile = width < 768
+      
+      setDimensions(prev => {
+        if (prev.width === width && prev.height === height && prev.isMobile === isMobile) {
+          return prev
+        }
+        return { width, height, isMobile }
+      })
+    }
+
+    updateDimensions()
+    
+    const debouncedResize = (() => {
+      let timeoutId: NodeJS.Timeout
+      return () => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(updateDimensions, 100)
+      }
+    })()
+
+    window.addEventListener('resize', debouncedResize, { passive: true })
+    return () => {
+      window.removeEventListener('resize', debouncedResize)
+    }
+  }, [])
+
+  return dimensions
+}
+
+const TimelineDot = React.memo(function TimelineDot({ 
+  item, 
+  index, 
+  onDotClick, 
+  activeCardIndex,
+  isMobile
+}: { 
+  item: TimelineItem
+  index: number
+  onDotClick: (index: number) => void
+  activeCardIndex: number
+  isMobile: boolean
+}) {
+  const [isHovered, setIsHovered] = useState(false)
+  const controls = useAnimation()
+  const isActive = activeCardIndex >= index
+  const displayDate = item.startDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }).replace(' ', " '")
+
+  useEffect(() => {
+    controls.start(isActive ? {
+      scale: 1.4,
+      backgroundColor: "#ffffff",
+      boxShadow: "0 0 15px rgba(255, 255, 255, 0.4)"
+    } : {
+      scale: 1,
+      backgroundColor: "#6b7280",
+      boxShadow: "0 0 4px rgba(107, 114, 128, 0.2)"
+    })
+  }, [isActive, controls])
 
   return (
-    <motion.div
-      className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-gray-500 z-30"
-      animate={animationValues}
-      transition={{
-        duration: 0.4,
-        ease: "easeOut",
-      }}
-      style={{
-        width: "20px",
-        height: "20px",
-        willChange: "transform, background-color, border-color",
-      }}
-    />
+    <>
+      <motion.div
+        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full cursor-pointer z-30"
+        animate={controls}
+        whileHover={{ scale: 1.6 }}
+        onClick={() => onDotClick(index)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{ width: "16px", height: "16px" }}
+      />
+
+      {isActive && (
+        <motion.div
+          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-40"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <div className="bg-neutral-900 text-white text-xs px-2 py-1 rounded-md border border-neutral-700 whitespace-nowrap cursor-pointer pointer-events-auto" onClick={() => onDotClick(index)}>
+            {displayDate}
+          </div>
+        </motion.div>
+      )}
+
+      {isHovered && !isActive && !isMobile && (
+        <motion.div
+          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50"
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: -50 }}
+        >
+          <div className="bg-black text-white text-xs px-3 py-2 rounded-lg border border-neutral-600 whitespace-nowrap">
+            {item.tagline}
+          </div>
+        </motion.div>
+      )}
+    </>
   )
 })
 
-// ========================================
-// TIMELINE CARD COMPONENT
-// ========================================
-
-interface TimelineCardProps {
+const TimelineCard = React.memo(function TimelineCard({ 
+  item, 
+  index, 
+  onCenterChange,
+  dimensions
+}: { 
   item: TimelineItem
   index: number
-  totalItems: number
-}
-
-const TimelineCard = React.memo(function TimelineCard({ item, index }: TimelineCardProps) { // 🔄 FIXED: Removed unused totalItems
+  onCenterChange: (index: number) => void
+  dimensions: { width: number; height: number; isMobile: boolean }
+}) {
   const ref = useRef(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   
-  const isInView = useInView(ref, { 
-    amount: 0.3,
-    once: true
-  })
+  const isInView = useInView(ref, { amount: 0.5, once: false })
+  const { isMobile, width } = dimensions
+  
+  // First card on RIGHT (index 0), second on LEFT (index 1), etc.
+  const isRight = isMobile || index % 2 === 0
 
-  const side = useMemo(() => getSideForIndex(index), [index])
-  const isLeft = side === "left"
+  useEffect(() => {
+    if (isInView) onCenterChange(index)
+  }, [isInView, index, onCenterChange])
 
-  const mouseMoveTimeoutRef = useRef<number | null>(null) // 🔄 FIXED: Added proper initialization
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (mouseMoveTimeoutRef.current !== null) {
-      cancelAnimationFrame(mouseMoveTimeoutRef.current)
+    if (!isMobile && cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect()
+      setMousePosition({ x: e.clientX - rect.left, y: e.clientY - rect.top })
     }
-    
-    mouseMoveTimeoutRef.current = requestAnimationFrame(() => {
-      if (cardRef.current) {
-        const rect = cardRef.current.getBoundingClientRect()
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
-        setMousePosition({ x, y })
+  }, [isMobile])
+
+  const cardDimensions = useMemo(() => {
+    if (width < 480) {
+      return {
+        width: isExpanded ? "calc(100vw - 96px)" : "calc(100vw - 96px)",
+        maxWidth: isExpanded ? "400px" : "320px",
+        height: isExpanded ? "auto" : "280px"
       }
-    })
-  }, [])
-
-  const handleMouseEnter = useCallback(() => setIsExpanded(true), [])
-  const handleMouseLeave = useCallback(() => {
-    setIsExpanded(false)
-    if (mouseMoveTimeoutRef.current !== null) {
-      cancelAnimationFrame(mouseMoveTimeoutRef.current)
+    } else if (width < 768) {
+      return {
+        width: isExpanded ? "calc(100vw - 112px)" : "calc(100vw - 112px)",
+        maxWidth: isExpanded ? "500px" : "380px",
+        height: isExpanded ? "auto" : "300px"
+      }
+    } else if (width < 1024) {
+      return {
+        width: isExpanded ? "550px" : "400px",
+        height: isExpanded ? "auto" : "320px"
+      }
+    } else {
+      return {
+        width: isExpanded ? "650px" : "450px",
+        height: isExpanded ? "auto" : "350px"
+      }
     }
-  }, [])
+  }, [width, isExpanded])
 
-  const cardAnimation = useMemo(() => ({
-    width: isExpanded ? "650px" : "450px",
-    height: isExpanded ? "auto" : "350px",
-    borderColor: isExpanded ? "#ffffff" : "#6b7280",
-    boxShadow: isExpanded 
-      ? "0 0 30px rgba(255, 255, 255, 0.3)" 
-      : "0 2px 8px rgba(0, 0, 0, 0.1)",
-  }), [isExpanded])
-
-  const spotlightStyle = useMemo(() => ({
-    background: `radial-gradient(circle 600px at ${mousePosition.x}px ${mousePosition.y}px, 
-      rgba(255,255,255,0.15) 0%, 
-      rgba(255,255,255,0.08) 25%, 
-      rgba(255,255,255,0) 60%)`,
-  }), [mousePosition.x, mousePosition.y])
-
-  if ((isLeft && index % 2 === 0) || (!isLeft && index % 2 === 1)) {
-    return (
-      <motion.div className="relative h-screen flex">
-        <div className="w-1/2"></div>
-        <div className="w-1/2"></div>
-      </motion.div>
-    )
+  const getPaddingClasses = () => {
+    if (width < 480) return 'pl-24 pr-6'
+    if (width < 768) return 'pl-28 pr-8'
+    if (width < 1024) return 'px-8'
+    return ''
   }
+
+  useEffect(() => {
+    setIsExpanded(false)
+  }, [width])
 
   return (
     <motion.div
       ref={ref}
-      className="relative h-screen flex"
-      initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={`relative ${isMobile ? 'h-auto min-h-screen py-8' : 'h-screen'} flex`}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 30, scale: 0.95 }}
+      key={`${width}-${isMobile}`}
     >
-      <div className={`w-1/2 flex items-center justify-center relative ${!isLeft ? 'order-last' : ''}`}>
+      <div className={`${isMobile ? `w-full ${getPaddingClasses()}` : (width < 1024 ? 'w-full px-8' : 'w-1/2')} flex items-center justify-center relative ${isRight ? 'order-last' : 'order-first'}`}>
         <motion.div
           ref={cardRef}
-          className="cursor-pointer"
-          initial={{ x: isLeft ? -50 : 50, opacity: 0 }}
-          animate={isInView ? { x: 0, opacity: 1 } : { x: isLeft ? -50 : 50, opacity: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+          className="cursor-pointer w-full max-w-none"
           onMouseMove={handleMouseMove}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onMouseEnter={() => !isMobile && setIsExpanded(true)}
+          onMouseLeave={() => setIsExpanded(false)}
+          onClick={() => isMobile && setIsExpanded(!isExpanded)}
+          animate={{
+            ...cardDimensions,
+            borderColor: isExpanded ? "#ffffff" : "#6b7280",
+            boxShadow: isExpanded ? "0 0 30px rgba(255, 255, 255, 0.15)" : "0 4px 15px rgba(0, 0, 0, 0.1)"
+          }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          style={{ 
+            margin: "0 auto", 
+            minWidth: width < 480 ? "260px" : "280px"
+          }}
         >
-          <motion.div
-            className="relative bg-neutral-950 border border-gray-600 rounded-xl overflow-hidden"
-            animate={cardAnimation}
-            transition={{ 
-              duration: 0.5, 
-              ease: "easeInOut"
-            }}
-            style={{
-              transformOrigin: "center center",
-              willChange: 'width, height, border-color, box-shadow'
-            }}
-          >
-            <div
-              className="absolute inset-0 pointer-events-none transition-all duration-500 ease-out"
-              style={{
-                ...spotlightStyle,
-                willChange: 'background'
-              }}
-            />
+          <div className="relative bg-neutral-950 border border-white rounded-xl overflow-hidden h-full">
+            {!isMobile && (
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: `radial-gradient(circle 500px at ${mousePosition.x}px ${mousePosition.y}px, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0) 60%)`
+                }}
+                animate={{ opacity: isExpanded ? 1 : 0 }}
+              />
+            )}
 
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0)_70%)]" />
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0)_70%)]" />
             
-            <div className="relative z-20 p-8">
+            <div className={`relative z-20 ${width < 480 ? 'p-4' : (isMobile ? 'p-5' : 'p-8')}`}>
               <div className="space-y-5">
-                <div className="text-base text-neutral-400 font-medium uppercase tracking-wider">
+                <div className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-400 font-medium uppercase tracking-wider`}>
                   {item.tagline}
                 </div>
-                <h3 className="text-2xl font-bold text-white leading-tight">
+                <h3 className={`${width < 480 ? 'text-lg' : (isMobile ? 'text-xl' : 'text-2xl')} font-bold text-white leading-tight`}>
                   {item.heading}
                 </h3>
-                <p className="text-base text-neutral-300 leading-relaxed">
+                <p className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-300 leading-relaxed`}>
                   {item.description}
                 </p>
               </div>
 
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{
-                  opacity: isExpanded ? 1 : 0,
-                  height: isExpanded ? "auto" : 0,
-                }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
+                animate={{ opacity: isExpanded ? 1 : 0, height: isExpanded ? "auto" : 0 }}
                 className="overflow-hidden"
-                style={{ willChange: 'height, opacity' }}
               >
                 <div className="space-y-6 border-t border-neutral-700 pt-6 mt-6">
                   <div className="space-y-4">
-                    <h4 className="text-base text-white font-semibold">Details:</h4>
-                    <p className="text-sm text-neutral-300 leading-relaxed">
+                    <h4 className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-white font-semibold`}>Details:</h4>
+                    <p className={`${width < 480 ? 'text-xs' : 'text-sm'} text-neutral-300 leading-relaxed`}>
                       {item.details}
                     </p>
                   </div>
                   
                   {item.skills && (
                     <div className="space-y-4">
-                      <h4 className="text-base text-white font-semibold">Technologies:</h4>
-                      <div className="flex flex-wrap gap-3">
-                        {item.skills.map((skill, skillIndex) => (
-                          <motion.span
+                      <h4 className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-white font-semibold`}>Technologies:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {item.skills.map((skill) => (
+                          <span
                             key={skill}
-                            className="px-3 py-2 bg-neutral-800 text-neutral-300 text-sm rounded-full border border-neutral-700"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: skillIndex * 0.1 }}
-                            whileHover={{ scale: 1.05 }}
-                            style={{ willChange: 'transform' }}
+                            className={`px-2 py-1 bg-neutral-800 text-neutral-300 ${width < 480 ? 'text-xs px-2 py-1' : (isMobile ? 'text-xs px-3 py-2' : 'text-sm px-3 py-2')} rounded-full border border-neutral-700`}
                           >
                             {skill}
-                          </motion.span>
+                          </span>
                         ))}
                       </div>
                     </div>
@@ -308,105 +328,156 @@ const TimelineCard = React.memo(function TimelineCard({ item, index }: TimelineC
                   
                   <Button 
                     variant="outline" 
-                    size="default"
-                    className="bg-transparent border-neutral-600 text-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-500 transition-colors text-base"
-                    onClick={() => {
-                      if (item.link) {
-                        window.open(item.link, '_blank', 'noopener,noreferrer')
-                      }
+                    size={width < 480 ? "sm" : (isMobile ? "sm" : "default")}
+                    className="bg-transparent border-neutral-600 text-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-500"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (item.link) window.open(item.link, '_blank')
                     }}
                     disabled={!item.link}
                   >
-                    {item.link ? 'View Project' : 'Details'}
+                    Details
                   </Button>
                 </div>
               </motion.div>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
       
-      <div className={`w-1/2 ${isLeft ? 'order-last' : ''}`}></div>
+      {!isMobile && width >= 1024 && (
+        <div className={`w-1/2 ${isRight ? 'order-first' : 'order-last'}`}></div>
+      )}
     </motion.div>
   )
 })
 
-// ========================================
-// MAIN EXPERIENCE COMPONENT
-// ========================================
-
 export default function Experience() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const dimensions = useResponsive()
+  const [activeCardIndex, setActiveCardIndex] = useState(0)
+  const [isClient, setIsClient] = useState(false)
+
+  // Client-side detection to prevent hydration errors
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+  
+  // Only initialize useScroll after client-side hydration
   const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
+    target: isClient ? containerRef : undefined,
+    offset: ["start start", "end end"]
   })
 
-  const { lineStartPercent, lineEndPercent } = useMemo(() => {
-    const totalScreens = timelineData.length
-    return {
-      lineStartPercent: (0.5 / totalScreens) * 100,
-      lineEndPercent: ((totalScreens - 0.5) / totalScreens) * 100
-    }
-  }, [])
+  const { lineStartVh, lineEndVh, dotPositions } = useMemo(() => {
+    const dockHeight = dimensions.isMobile ? 100 : 120
+    const topMargin = 100
+    const bottomMargin = dockHeight + 50
+    
+    const lineStartVh = (topMargin / dimensions.height) * 100
+    const lineEndVh = ((dimensions.height - bottomMargin) / dimensions.height) * 100
+    
+    const totalLineHeight = lineEndVh - lineStartVh
+    const dotPositions = timelineData.map((_, index) => 
+      lineStartVh + (totalLineHeight * index / (timelineData.length - 1))
+    )
+    
+    return { lineStartVh, lineEndVh, dotPositions }
+  }, [dimensions])
 
-  // 🔄 REMOVED: Unused lineHeight variable
-  const coloredLineHeight = useTransform(scrollYProgress, [0, 1], ["0%", `${lineEndPercent - lineStartPercent}%`])
+  const lineProgressHeight = useMemo(() => {
+    const totalLineHeight = lineEndVh - lineStartVh
+    const progressHeight = (totalLineHeight * activeCardIndex / (timelineData.length - 1))
+    return `${progressHeight}vh`
+  }, [activeCardIndex, lineEndVh, lineStartVh])
 
-  const [currentScrollProgress, setCurrentScrollProgress] = useState(0)
-  
-  React.useEffect(() => {
-    const unsubscribe = scrollYProgress.on("change", (latest) => {
-      setCurrentScrollProgress(latest)
+  const scrollToSection = useCallback((index: number) => {
+    if (!isClient) return
+    const targetY = index * window.innerHeight
+    window.scrollTo({
+      top: targetY,
+      behavior: 'smooth'
     })
-    return unsubscribe
-  }, [scrollYProgress])
+  }, [isClient])
+
+  const timelinePosition = useMemo(() => {
+    if (dimensions.width < 480) return { left: "64px", transform: "translateX(0)" }
+    if (dimensions.width < 768) return { left: "72px", transform: "translateX(0)" }
+    return { left: "50%", transform: "translateX(-50%)" }
+  }, [dimensions.width])
+
+  // Show loading state until client-side hydration is complete
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-neutral-950 relative overflow-hidden">
+        <HomeDock />
+        <div className="relative z-10 flex items-center justify-center min-h-screen">
+          <div className="text-white animate-pulse">Loading Timeline...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-neutral-950 relative overflow-hidden">
       <HomeDock />
       
       <div ref={containerRef} className="relative z-10">
-        <div
-          className="fixed left-1/2 transform -translate-x-1/2 w-0.5 bg-neutral-600 z-20"
+        <motion.div
+          className="fixed w-0.5 bg-neutral-600 z-20"
           style={{
-            top: `${lineStartPercent}vh`,
-            height: `${lineEndPercent - lineStartPercent}vh`,
+            left: timelinePosition.left,
+            transform: timelinePosition.transform,
+            top: `${lineStartVh}vh`,
+            height: `${lineEndVh - lineStartVh}vh`
           }}
+          initial={{ scaleY: 0 }}
+          animate={{ scaleY: 1 }}
         />
 
         <motion.div
-          className="fixed left-1/2 transform -translate-x-1/2 w-0.5 bg-white origin-top z-20"
+          className="fixed w-0.5 bg-gradient-to-b from-white via-white to-neutral-300 origin-top z-20"
           style={{
-            height: coloredLineHeight,
-            top: `${lineStartPercent}vh`,
-            willChange: 'height'
+            left: timelinePosition.left,
+            transform: timelinePosition.transform,
+            top: `${lineStartVh}vh`,
+            filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.3))'
           }}
+          animate={{ height: lineProgressHeight }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         />
 
         {timelineData.map((item, index) => (
-          <div
-            key={`dot-${item.id}`}
-            className="fixed left-1/2 z-30"
+          <motion.div
+            key={item.id}
+            className="fixed z-30"
             style={{
-              top: `${lineStartPercent + ((lineEndPercent - lineStartPercent) * (index + 0.5) / timelineData.length)}vh`,
+              left: timelinePosition.left,
+              transform: timelinePosition.transform,
+              top: `${dotPositions[index]}vh`
             }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3 + (index * 0.05) }}
           >
             <TimelineDot
+              item={item}
               index={index}
-              totalItems={timelineData.length}
-              scrollProgress={currentScrollProgress}
+              onDotClick={scrollToSection}
+              activeCardIndex={activeCardIndex}
+              isMobile={dimensions.isMobile}
             />
-          </div>
+          </motion.div>
         ))}
 
         <div>
           {timelineData.map((item, index) => (
             <TimelineCard 
-              key={item.id} 
+              key={`${item.id}-${dimensions.width}`}
               item={item} 
               index={index} 
-              totalItems={timelineData.length} 
+              onCenterChange={setActiveCardIndex}
+              dimensions={dimensions}
             />
           ))}
         </div>

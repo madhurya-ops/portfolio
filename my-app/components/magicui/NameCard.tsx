@@ -46,33 +46,33 @@ export default function NameCard() {
   }
 
   return (
-    <div className="w-full flex items-center">
-      <div className="absolute bottom-10 right-0 z-100">
-              <div className="font-mono flex justify-end items-center gap-1 text-sm font-light text-zinc-400">
-                <div className="size-1.5 rounded-full bg-green-500" />
-                <p className="text-s font-light">Available for work</p>
-              </div>
-              <div className="flex items-center justify-center">
-                <time
-                  className="text-[11px] font-light font-mono tabular-nums tracking-wider text-zinc-500"
-                  dateTime={currentTime.toISOString()}
-                  aria-label="Current time"
-                >
-                  {currentTime.toLocaleDateString("en-US", {
-                    month: "2-digit",
-                    day: "2-digit",
-                    year: "numeric",
-                  })}
-                  ,{" "}
-                  {currentTime.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: true,
-                  })}
-                </time>
-              </div>
-    </div>
+    <div className="w-full flex items-center px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16" style={{ maxWidth: 'calc(100vw - 2rem)' }}>
+      <div className="absolute bottom-10 right-4 sm:right-6 md:right-8 lg:right-12 xl:right-16 z-100">
+        <div className="font-mono flex justify-end items-center gap-1 text-sm font-light text-zinc-400">
+          <div className="size-1.5 rounded-full bg-green-500" />
+          <p className="text-s font-light">Available for work</p>
+        </div>
+        <div className="flex items-center justify-center">
+          <time
+            className="text-[11px] font-light font-mono tabular-nums tracking-wider text-zinc-500"
+            dateTime={currentTime.toISOString()}
+            aria-label="Current time"
+          >
+            {currentTime.toLocaleDateString("en-US", {
+              month: "2-digit",
+              day: "2-digit",
+              year: "numeric",
+            })}
+            ,{" "}
+            {currentTime.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+            })}
+          </time>
+        </div>
+      </div>
       <div
         ref={cardRef}
         className={`relative w-full max-w-xl overflow-hidden rounded-xl border bg-zinc-950 border-zinc-900 text-white cursor-pointer transition-all duration-1000 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
