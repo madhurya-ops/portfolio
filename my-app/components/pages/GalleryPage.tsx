@@ -23,13 +23,13 @@ const calculateGridClass = (w: number, h: number): string => {
 
 const imageConfig: ImageData[] = [
   { src: "/pic1.jpeg", w: 445, h: 470, aspectRatio: "445 / 470", gridClass: calculateGridClass(445, 470), priority: true },
-  { src: "/pic2.JPG", w: 900, h: 470, aspectRatio: "900 / 470", gridClass: calculateGridClass(900, 470), priority: true },
+  { src: "/pic2.jpg", w: 900, h: 470, aspectRatio: "900 / 470", gridClass: calculateGridClass(900, 470), priority: true },
 
   { src: "/pic3.jpg", w: 300, h: 400, aspectRatio: "300 / 400", gridClass: calculateGridClass(300, 400), priority: false },
   { src: "/pic4.jpg", w: 300, h: 400, aspectRatio: "300 / 400", gridClass: calculateGridClass(300, 400), priority: false },
   { src: "/pic5.jpeg", w: 300, h: 720, aspectRatio: "300 / 720", gridClass: calculateGridClass(300, 720), priority: false },
   
-  { src: "/pic9.JPG", w: 300, h: 585, aspectRatio: "300 / 585", gridClass: calculateGridClass(300, 585), priority: false },
+  { src: "/pic9.jpg", w: 300, h: 585, aspectRatio: "300 / 585", gridClass: calculateGridClass(300, 585), priority: false },
   { src: "/pic6.jpeg", w: 300, h: 400, aspectRatio: "300 / 400", gridClass: calculateGridClass(300, 400), priority: false },
   { src: "/pic8.jpeg", w: 300, h: 265, aspectRatio: "300 / 265", gridClass: calculateGridClass(300, 265), priority: false },
   
