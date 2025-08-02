@@ -214,7 +214,7 @@ const TimelineCard = React.memo(function TimelineCard({
   const isInView = useInView(ref, { amount: 0.5, once: false })
   const { isMobile, width } = dimensions
   
-  // FIXED: First card on RIGHT (index 0), second on LEFT (index 1), etc.
+  // First card on RIGHT (index 0), second on LEFT (index 1), etc.
   const isRight = isMobile || index % 2 === 0
 
   useEffect(() => {
@@ -377,12 +377,17 @@ export default function Experience() {
   const containerRef = useRef<HTMLDivElement>(null)
   const dimensions = useResponsive()
   const [activeCardIndex, setActiveCardIndex] = useState(0)
+  const [isClient, setIsClient] = useState(false)
+
+  // Client-side detection to prevent hydration errors
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
   
-  // FIXED: Added layoutEffect: false to prevent hydration error
+  // Only initialize useScroll after client-side hydration
   const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-    layoutEffect: false
+    target: isClient ? containerRef : undefined,
+    offset: ["start start", "end end"]
   })
 
   const { lineStartVh, lineEndVh, dotPositions } = useMemo(() => {
@@ -408,18 +413,31 @@ export default function Experience() {
   }, [activeCardIndex, lineEndVh, lineStartVh])
 
   const scrollToSection = useCallback((index: number) => {
+    if (!isClient) return
     const targetY = index * window.innerHeight
     window.scrollTo({
       top: targetY,
       behavior: 'smooth'
     })
-  }, [])
+  }, [isClient])
 
   const timelinePosition = useMemo(() => {
     if (dimensions.width < 480) return { left: "64px", transform: "translateX(0)" }
     if (dimensions.width < 768) return { left: "72px", transform: "translateX(0)" }
     return { left: "50%", transform: "translateX(-50%)" }
   }, [dimensions.width])
+
+  // Show loading state until client-side hydration is complete
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-neutral-950 relative overflow-hidden">
+        <HomeDock />
+        <div className="relative z-10 flex items-center justify-center min-h-screen">
+          <div className="text-white animate-pulse">Loading Timeline...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-neutral-950 relative overflow-hidden">
