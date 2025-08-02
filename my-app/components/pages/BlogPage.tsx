@@ -70,13 +70,13 @@ function TweetCard({ tweet }: { tweet: Tweet }) {
         {/* Header */}
         <div className="flex flex-row justify-between tracking-tight">
           <div className="flex items-center space-x-3">
-            <img
-              src={tweet.user.avatar}
-              alt={`${tweet.user.username} profile picture`}
-              height={40}
-              width={40}
-              className="overflow-hidden rounded-full border border-transparent"
-            />
+          <Image
+  src={tweet.user.avatar}
+  alt={`${tweet.user.username} profile picture`}
+  height={40}
+  width={40}
+  className="overflow-hidden rounded-full border border-transparent"
+/>
             <div>
               <div className="flex items-center whitespace-nowrap font-semibold text-white">
                 {tweet.user.name}
@@ -86,11 +86,11 @@ function TweetCard({ tweet }: { tweet: Tweet }) {
               </div>
             </div>
           </div>
-          <img
+          <Image
             src="/x.svg"
             alt="X (Twitter) Icon"
-            height="20"
-            width="20"
+            height={20}
+            width={20}
             className="size-5 text-white transition-all ease-in-out hover:scale-105"
           />
         </div>

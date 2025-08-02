@@ -123,14 +123,14 @@ export async function GET() {
       }
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Unexpected error:', error)
     
     return NextResponse.json(
       {
         error: 'Server error',
         message: 'An unexpected error occurred while fetching tweets',
-        details: error.message
+        details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     )

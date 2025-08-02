@@ -5,6 +5,32 @@ import { supabaseAdmin } from '@/lib/supabase'
 const TWITTER_API_BASE = 'https://api.twitter.com/2'
 const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN
 
+interface TwitterUser {
+  id: string;
+  name: string;
+  username: string;
+  profile_image_url?: string;
+}
+
+interface TwitterTweet {
+  id: string;
+  text: string;
+  created_at: string;
+  author_id: string;
+  public_metrics?: {
+    retweet_count: number;
+    like_count: number;
+    reply_count: number;
+  };
+}
+
+interface TwitterApiResponse {
+  data: TwitterTweet[];
+  includes?: {
+    users: TwitterUser[];
+  };
+}
+
 interface DatabaseTweet {
   tweet_id: string
   content: string
@@ -62,8 +88,9 @@ async function fetchTweetsFromTwitter(): Promise<DatabaseTweet[]> {
     const data = await tweetsResponse.json()
     
     // Transform Twitter API response
-    const tweets: DatabaseTweet[] = data.data?.map((tweet: any) => {
-      const user = data.includes?.users?.find((u: any) => u.id === tweet.author_id)
+    const tweets: DatabaseTweet[] = data.data?.map((tweet: TwitterTweet) => {
+      const user = data.includes?.users?.find((u: TwitterUser) => u.id === tweet.author_id)
+    
       return {
         tweet_id: tweet.id,
         content: tweet.text,
@@ -159,10 +186,10 @@ export async function POST() {
       cached: tweets.length,
       message: `Successfully cached ${tweets.length} tweets from @with_maddy_`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Cache process failed:', error)
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
