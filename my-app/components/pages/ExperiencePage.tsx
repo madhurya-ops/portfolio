@@ -1,14 +1,9 @@
 "use client"
 
-import React, { useRef, useState, useCallback, useMemo, useLayoutEffect } from "react"
-import { motion, useScroll, useTransform, useInView, useAnimation } from "framer-motion"
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react"
+import { motion, useScroll, useInView, useAnimation } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { HomeDock } from "@/components/AppBar"
-import Image from "next/image"
-
-// ========================================
-// TYPE DEFINITIONS & INTERFACES
-// ========================================
 
 interface TimelineItem {
   id: string
@@ -21,10 +16,6 @@ interface TimelineItem {
   startDate: Date
   endDate: Date
 }
-
-// ========================================
-// DYNAMIC TIMELINE DATA CONFIGURATION
-// ========================================
 
 const timelineData: TimelineItem[] = [
   {
@@ -95,717 +86,402 @@ const timelineData: TimelineItem[] = [
   },
 ].sort((a, b) => b.startDate.getTime() - a.startDate.getTime())
 
-// ========================================
-// UTILITY FUNCTIONS
-// ========================================
-
-const getSideForIndex = (index: number, isMobile: boolean): "left" | "right" => {
-  if (isMobile) return "right"
-  return index % 2 === 0 ? "right" : "left"
-}
-
-const calculateTimelinePosition = (date: Date, startDate: Date, endDate: Date): number => {
-  const totalDuration = endDate.getTime() - startDate.getTime()
-  const currentPosition = date.getTime() - startDate.getTime()
-  return Math.max(0, Math.min(1, currentPosition / totalDuration))
-}
-
-const formatDateForDisplay = (date: Date): string => {
-  const month = date.toLocaleDateString('en-US', { month: 'short' })
-  const year = date.getFullYear().toString().slice(-2)
-  return `${month} '${year}`
-}
-
-const getTimelineBounds = (data: TimelineItem[]) => {
-  const allDates = data.flatMap(item => [item.startDate, item.endDate])
-  const minDate = new Date(Math.min(...allDates.map(d => d.getTime())))
-  const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())))
-  
-  const padding = (maxDate.getTime() - minDate.getTime()) * 0.1
-  return { 
-    minDate: new Date(minDate.getTime() - padding), 
-    maxDate: new Date(maxDate.getTime() + padding) 
-  }
-}
-
-// Enhanced responsive hook with proper resize handling and debouncing
 const useResponsive = () => {
   const [dimensions, setDimensions] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 1200,
-    height: typeof window !== 'undefined' ? window.innerHeight : 800
+    width: 1200,
+    height: 800,
+    isMobile: false
   })
 
-  const [breakpoints, setBreakpoints] = useState({
-    isMobile: typeof window !== 'undefined' ? window.innerWidth < 768 : false,
-    isTablet: typeof window !== 'undefined' ? window.innerWidth >= 768 && window.innerWidth < 1024 : false,
-    isDesktop: typeof window !== 'undefined' ? window.innerWidth >= 1024 : true
-  })
+  useEffect(() => {
+    const updateDimensions = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      const isMobile = width < 768
+      
+      setDimensions(prev => {
+        if (prev.width === width && prev.height === height && prev.isMobile === isMobile) {
+          return prev
+        }
+        return { width, height, isMobile }
+      })
+    }
 
-  const updateDimensions = useCallback(() => {
-    if (typeof window === 'undefined') return
+    updateDimensions()
     
-    const width = window.innerWidth
-    const height = window.innerHeight
-    
-    setDimensions(prev => {
-      if (prev.width === width && prev.height === height) return prev
-      return { width, height }
-    })
-    
-    setBreakpoints(prev => {
-      const newBreakpoints = {
-        isMobile: width < 768,
-        isTablet: width >= 768 && width < 1024,
-        isDesktop: width >= 1024
+    const debouncedResize = (() => {
+      let timeoutId: NodeJS.Timeout
+      return () => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(updateDimensions, 100)
       }
-      
-      if (prev.isMobile === newBreakpoints.isMobile && 
-          prev.isTablet === newBreakpoints.isTablet && 
-          prev.isDesktop === newBreakpoints.isDesktop) return prev
-      
-      return newBreakpoints
-    })
+    })()
+
+    window.addEventListener('resize', debouncedResize, { passive: true })
+    return () => {
+      window.removeEventListener('resize', debouncedResize)
+    }
   }, [])
 
-  useLayoutEffect(() => {
-    updateDimensions()
-
-    let timeoutId: NodeJS.Timeout
-    const handleResize = () => {
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(updateDimensions, 10)
-    }
-
-    window.addEventListener('resize', handleResize, { passive: true })
-    
-    return () => {
-      window.removeEventListener('resize', handleResize)
-      clearTimeout(timeoutId)
-    }
-  }, [updateDimensions])
-
-  return { ...breakpoints, dimensions }
-}
-
-// ========================================
-// OPTIMIZED ANIMATION VARIANTS
-// ========================================
-
-const animationVariants = {
-  dot: {
-    inactive: {
-      scale: 1,
-      backgroundColor: "#6b7280",
-      borderColor: "transparent",
-      boxShadow: "0 0 4px rgba(107, 114, 128, 0.2)",
-      // Remove transition from the animation object - let Framer Motion handle it
-    },
-    active: {
-      scale: 1.4,
-      backgroundColor: "#ffffff",
-      borderColor: "#ffffff",
-      boxShadow: "0 0 15px rgba(255, 255, 255, 0.4)",
-      // Remove transition from the animation object
-    },
-    hover: {
-      scale: 1.6,
-      // Remove transition from the animation object
-    }
-  },
-  card: {
-    hidden: { 
-      opacity: 0, 
-      y: 30, 
-      scale: 0.95,
-    },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-    }
-  },
-  skillTag: {
-    hidden: { opacity: 0, scale: 0.8, y: 10 },
-    visible: (i: number) => ({
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.03,
-        duration: 0.2,
-      }
-    })
-  }
-}
-
-// ========================================
-// TIMELINE DOT COMPONENT
-// ========================================
-
-interface TimelineDotProps {
-  item: TimelineItem
-  index: number
-  scrollProgress: number
-  onDotClick: (index: number) => void
-  timelinePosition: number
-  isMobile: boolean
-  activeCardIndex: number
+  return dimensions
 }
 
 const TimelineDot = React.memo(function TimelineDot({ 
   item, 
   index, 
-  scrollProgress, 
   onDotClick, 
-  timelinePosition,
-  isMobile,
-  activeCardIndex
-}: TimelineDotProps) {
+  activeCardIndex,
+  isMobile
+}: { 
+  item: TimelineItem
+  index: number
+  onDotClick: (index: number) => void
+  activeCardIndex: number
+  isMobile: boolean
+}) {
   const [isHovered, setIsHovered] = useState(false)
   const controls = useAnimation()
-  
-  // Dot becomes active when its corresponding card is centered
-  const isScrolledPast = activeCardIndex >= index
-  
-  const displayDate = formatDateForDisplay(item.startDate)
+  const isActive = activeCardIndex >= index
+  const displayDate = item.startDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }).replace(' ', " '")
 
-  React.useEffect(() => {
-    controls.start(isScrolledPast ? animationVariants.dot.active : animationVariants.dot.inactive)
-  }, [isScrolledPast, controls])
-
-  const handleDotClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    onDotClick(index)
-  }, [onDotClick, index])
+  useEffect(() => {
+    controls.start(isActive ? {
+      scale: 1.4,
+      backgroundColor: "#ffffff",
+      boxShadow: "0 0 15px rgba(255, 255, 255, 0.4)"
+    } : {
+      scale: 1,
+      backgroundColor: "#6b7280",
+      boxShadow: "0 0 4px rgba(107, 114, 128, 0.2)"
+    })
+  }, [isActive, controls])
 
   return (
     <>
       <motion.div
         className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full cursor-pointer z-30"
         animate={controls}
-        whileHover={animationVariants.dot.hover}
-        whileTap={{ scale: 1.2, transition: { duration: 0.1 } }}
-        onClick={handleDotClick}
+        whileHover={{ scale: 1.6 }}
+        onClick={() => onDotClick(index)}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        style={{
-          width: "16px",
-          height: "16px",
-          willChange: "transform, background-color, border-color, box-shadow",
-        }}
+        style={{ width: "16px", height: "16px" }}
       />
 
-      <motion.div
-        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-40"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{
-          opacity: isScrolledPast ? 1 : 0,
-          scale: isScrolledPast ? 1 : 0.8,
-        }}
-        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-      >
-        <motion.div 
-          className="bg-neutral-900 text-white text-xs px-2 py-1 rounded-md border border-neutral-700 whitespace-nowrap cursor-pointer pointer-events-auto"
-          whileHover={{ 
-            scale: 1.05,
-            boxShadow: "0 0 10px rgba(255, 255, 255, 0.3)",
-            backgroundColor: "#262626",
-            transition: { duration: 0.15 }
-          }}
-          onClick={handleDotClick}
+      {isActive && (
+        <motion.div
+          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-40"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
         >
-          {displayDate}
+          <div className="bg-neutral-900 text-white text-xs px-2 py-1 rounded-md border border-neutral-700 whitespace-nowrap cursor-pointer pointer-events-auto" onClick={() => onDotClick(index)}>
+            {displayDate}
+          </div>
         </motion.div>
-      </motion.div>
+      )}
 
-      <motion.div
-        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50"
-        initial={{ opacity: 0, scale: 0.8, y: -40 }}
-        animate={{
-          opacity: (isHovered && !isScrolledPast && !isMobile) ? 1 : 0,
-          scale: (isHovered && !isScrolledPast && !isMobile) ? 1 : 0.8,
-          y: (isHovered && !isScrolledPast && !isMobile) ? -50 : -40,
-        }}
-        transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-      >
-        <div className="bg-black text-white text-xs px-3 py-2 rounded-lg border border-neutral-600 whitespace-nowrap shadow-xl">
-          {item.tagline}
-        </div>
-      </motion.div>
+      {isHovered && !isActive && !isMobile && (
+        <motion.div
+          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50"
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: -50 }}
+        >
+          <div className="bg-black text-white text-xs px-3 py-2 rounded-lg border border-neutral-600 whitespace-nowrap">
+            {item.tagline}
+          </div>
+        </motion.div>
+      )}
     </>
   )
 })
 
-// ========================================
-// TIMELINE CARD COMPONENT
-// ========================================
-
-interface TimelineCardProps {
-  item: TimelineItem
-  index: number
-  totalItems: number
-  isMobile: boolean
-  isTablet: boolean
-  dimensions: { width: number; height: number }
-  onCenterChange: (index: number) => void
-}
-
 const TimelineCard = React.memo(function TimelineCard({ 
   item, 
   index, 
-  isMobile, 
-  isTablet,
-  dimensions,
-  onCenterChange
-}: TimelineCardProps) {
+  onCenterChange,
+  dimensions
+}: { 
+  item: TimelineItem
+  index: number
+  onCenterChange: (index: number) => void
+  dimensions: { width: number; height: number; isMobile: boolean }
+}) {
   const ref = useRef(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   
-  const isInView = useInView(ref, { 
-    amount: 0.5, // Card is considered centered when 50% is visible
-    once: false
-  })
+  const isInView = useInView(ref, { amount: 0.5, once: false })
+  const { isMobile, width } = dimensions
+  
+  // FIXED: First card on RIGHT (index 0), second on LEFT (index 1), etc.
+  const isRight = isMobile || index % 2 === 0
 
-  // Notify parent when this card becomes centered
-  React.useEffect(() => {
-    if (isInView) {
-      onCenterChange(index)
-    }
+  useEffect(() => {
+    if (isInView) onCenterChange(index)
   }, [isInView, index, onCenterChange])
 
-  const side = useMemo(() => getSideForIndex(index, isMobile), [index, isMobile])
-  const isLeft = side === "left"
-
-  const mouseMoveTimeoutRef = useRef<number | null>(null)
-  
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (isMobile) return
-    
-    if (mouseMoveTimeoutRef.current !== null) {
-      cancelAnimationFrame(mouseMoveTimeoutRef.current)
+    if (!isMobile && cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect()
+      setMousePosition({ x: e.clientX - rect.left, y: e.clientY - rect.top })
     }
-    
-    mouseMoveTimeoutRef.current = requestAnimationFrame(() => {
-      if (cardRef.current) {
-        const rect = cardRef.current.getBoundingClientRect()
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
-        setMousePosition({ x, y })
-      }
-    })
   }, [isMobile])
 
-  const handleMouseEnter = useCallback(() => {
-    if (!isMobile) setIsExpanded(true)
-  }, [isMobile])
-
-  const handleMouseLeave = useCallback(() => {
-    setIsExpanded(false)
-    if (mouseMoveTimeoutRef.current !== null) {
-      cancelAnimationFrame(mouseMoveTimeoutRef.current)
-    }
-  }, [])
-
-  const handleCardTap = useCallback(() => {
-    if (isMobile) {
-      setIsExpanded(!isExpanded)
-    }
-  }, [isMobile, isExpanded])
-
-  // Enhanced card dimensions with better screen edge handling
-  const getCardDimensions = useCallback(() => {
-    const { width } = dimensions
-    
-    if (width < 480) { // Very small mobile
+  const cardDimensions = useMemo(() => {
+    if (width < 480) {
       return {
         width: isExpanded ? "calc(100vw - 96px)" : "calc(100vw - 96px)",
         maxWidth: isExpanded ? "400px" : "320px",
         height: isExpanded ? "auto" : "280px"
       }
-    } else if (width < 768) { // Mobile
+    } else if (width < 768) {
       return {
         width: isExpanded ? "calc(100vw - 112px)" : "calc(100vw - 112px)",
         maxWidth: isExpanded ? "500px" : "380px",
         height: isExpanded ? "auto" : "300px"
       }
-    } else if (width < 1024) { // Tablet
+    } else if (width < 1024) {
       return {
         width: isExpanded ? "550px" : "400px",
         height: isExpanded ? "auto" : "320px"
       }
-    } else { // Desktop
+    } else {
       return {
         width: isExpanded ? "650px" : "450px",
         height: isExpanded ? "auto" : "350px"
       }
     }
-  }, [dimensions, isExpanded])
+  }, [width, isExpanded])
 
-  const cardAnimation = useMemo(() => ({
-    ...getCardDimensions(),
-    borderColor: isExpanded ? "#ffffff" : "#6b7280",
-    boxShadow: isExpanded 
-      ? "0 0 30px rgba(255, 255, 255, 0.15)" 
-      : "0 4px 15px rgba(0, 0, 0, 0.1)",
-  }), [isExpanded, getCardDimensions])
-
-  const spotlightStyle = useMemo(() => {
-    if (isMobile) return {}
-    return {
-      background: `radial-gradient(circle 500px at ${mousePosition.x}px ${mousePosition.y}px, 
-        rgba(255,255,255,0.08) 0%, 
-        rgba(255,255,255,0.04) 25%, 
-        rgba(255,255,255,0) 60%)`,
-    }
-  }, [mousePosition.x, mousePosition.y, isMobile])
-
-  const shouldShowCard = !isMobile || (isMobile && side === "right")
-
-  if (!shouldShowCard) {
-    return (
-      <motion.div className="relative h-screen flex">
-        <div className="w-full"></div>
-      </motion.div>
-    )
-  }
-
-  // Dynamic padding based on screen size
   const getPaddingClasses = () => {
-    const { width } = dimensions
-    if (width < 480) {
-      return 'pl-24 pr-6' // 96px left, 24px right
-    } else if (width < 768) {
-      return 'pl-28 pr-8' // 112px left, 32px right
-    } else if (width < 1024) {
-      return 'px-8' // Tablet padding
-    } else {
-      return '' // Desktop - no special padding
-    }
+    if (width < 480) return 'pl-24 pr-6'
+    if (width < 768) return 'pl-28 pr-8'
+    if (width < 1024) return 'px-8'
+    return ''
   }
+
+  useEffect(() => {
+    setIsExpanded(false)
+  }, [width])
 
   return (
     <motion.div
       ref={ref}
       className={`relative ${isMobile ? 'h-auto min-h-screen py-8' : 'h-screen'} flex`}
-      variants={animationVariants.card}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      key={`${isMobile}-${isTablet}`}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 30, scale: 0.95 }}
+      key={`${width}-${isMobile}`}
     >
-      <div className={`${isMobile ? `w-full ${getPaddingClasses()}` : (isTablet ? 'w-full px-8' : 'w-1/2')} flex items-center justify-center relative ${!isLeft && !isMobile ? 'order-last' : ''}`}>
-        <div className="w-full max-w-none">
-          <motion.div
-            ref={cardRef}
-            className="cursor-pointer"
-            onMouseMove={handleMouseMove}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onClick={handleCardTap}
-            animate={cardAnimation}
-            transition={{ 
-              duration: 0.3, 
-              ease: [0.4, 0, 0.2, 1]
-            }}
-            style={{
-              transformOrigin: "center center",
-              willChange: 'width, height, border-color, box-shadow',
-              minWidth: dimensions.width < 480 ? "260px" : "280px",
-              margin: "0 auto"
-            }}
-          >
-            <div className="relative bg-neutral-950 border border-white rounded-xl overflow-hidden h-full">
-              {!isMobile && (
-                <motion.div
-                  className="absolute inset-0 pointer-events-none"
-                  style={spotlightStyle}
-                  animate={{ opacity: isExpanded ? 1 : 0 }}
-                  transition={{ duration: 0.2 }}
-                />
-              )}
+      <div className={`${isMobile ? `w-full ${getPaddingClasses()}` : (width < 1024 ? 'w-full px-8' : 'w-1/2')} flex items-center justify-center relative ${isRight ? 'order-last' : 'order-first'}`}>
+        <motion.div
+          ref={cardRef}
+          className="cursor-pointer w-full max-w-none"
+          onMouseMove={handleMouseMove}
+          onMouseEnter={() => !isMobile && setIsExpanded(true)}
+          onMouseLeave={() => setIsExpanded(false)}
+          onClick={() => isMobile && setIsExpanded(!isExpanded)}
+          animate={{
+            ...cardDimensions,
+            borderColor: isExpanded ? "#ffffff" : "#6b7280",
+            boxShadow: isExpanded ? "0 0 30px rgba(255, 255, 255, 0.15)" : "0 4px 15px rgba(0, 0, 0, 0.1)"
+          }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          style={{ 
+            margin: "0 auto", 
+            minWidth: width < 480 ? "260px" : "280px"
+          }}
+        >
+          <div className="relative bg-neutral-950 border border-white rounded-xl overflow-hidden h-full">
+            {!isMobile && (
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: `radial-gradient(circle 500px at ${mousePosition.x}px ${mousePosition.y}px, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0) 60%)`
+                }}
+                animate={{ opacity: isExpanded ? 1 : 0 }}
+              />
+            )}
 
-              <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0)_70%)]" />
-              
-              <div className={`relative z-20 ${dimensions.width < 480 ? 'p-4' : (isMobile ? 'p-5' : 'p-8')}`}>
-                <motion.div 
-                  className="space-y-5"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.1 }}
-                >
-                  <div className={`${dimensions.width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-400 font-medium uppercase tracking-wider`}>
-                    {item.tagline}
-                  </div>
-                  <h3 className={`${dimensions.width < 480 ? 'text-lg' : (isMobile ? 'text-xl' : 'text-2xl')} font-bold text-white leading-tight`}>
-                    {item.heading}
-                  </h3>
-                  <p className={`${dimensions.width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-300 leading-relaxed`}>
-                    {item.description}
-                  </p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{
-                    opacity: isExpanded ? 1 : 0,
-                    height: isExpanded ? "auto" : 0,
-                  }}
-                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="space-y-6 border-t border-neutral-700 pt-6 mt-6">
-                    <motion.div 
-                      className="space-y-4"
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={isExpanded ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-                      transition={{ duration: 0.2, delay: 0.05 }}
-                    >
-                      <h4 className={`${dimensions.width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-white font-semibold`}>Details:</h4>
-                      <p className={`${dimensions.width < 480 ? 'text-xs' : 'text-sm'} text-neutral-300 leading-relaxed`}>
-                        {item.details}
-                      </p>
-                    </motion.div>
-                    
-                    {item.skills && (
-                      <motion.div 
-                        className="space-y-4"
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={isExpanded ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-                        transition={{ duration: 0.2, delay: 0.1 }}
-                      >
-                        <h4 className={`${dimensions.width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-white font-semibold`}>Technologies:</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {item.skills.map((skill, skillIndex) => (
-                            <motion.span
-                              key={skill}
-                              className={`px-2 py-1 bg-neutral-800 text-neutral-300 ${dimensions.width < 480 ? 'text-xs px-2 py-1' : (isMobile ? 'text-xs px-3 py-2' : 'text-sm px-3 py-2')} rounded-full border border-neutral-700`}
-                              custom={skillIndex}
-                              variants={animationVariants.skillTag}
-                              initial="hidden"
-                              animate={isExpanded ? "visible" : "hidden"}
-                              whileHover={!isMobile ? { 
-                                scale: 1.05,
-                                backgroundColor: "#404040",
-                                transition: { duration: 0.1 }
-                              } : {}}
-                            >
-                              {skill}
-                            </motion.span>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                    
-                    <motion.div
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={isExpanded ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-                      transition={{ duration: 0.2, delay: 0.15 }}
-                    >
-                      <Button 
-                        variant="outline" 
-                        size={dimensions.width < 480 ? "sm" : (isMobile ? "sm" : "default")}
-                        className="bg-transparent border-neutral-600 text-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-500 transition-colors duration-150"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (item.link) {
-                            window.open(item.link, '_blank', 'noopener,noreferrer')
-                          }
-                        }}
-                        disabled={!item.link}
-                      >
-                        {item.link ? 'Details' : 'Details'}
-                      </Button>
-                    </motion.div>
-                  </div>
-                </motion.div>
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0)_70%)]" />
+            
+            <div className={`relative z-20 ${width < 480 ? 'p-4' : (isMobile ? 'p-5' : 'p-8')}`}>
+              <div className="space-y-5">
+                <div className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-400 font-medium uppercase tracking-wider`}>
+                  {item.tagline}
+                </div>
+                <h3 className={`${width < 480 ? 'text-lg' : (isMobile ? 'text-xl' : 'text-2xl')} font-bold text-white leading-tight`}>
+                  {item.heading}
+                </h3>
+                <p className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-300 leading-relaxed`}>
+                  {item.description}
+                </p>
               </div>
+
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: isExpanded ? 1 : 0, height: isExpanded ? "auto" : 0 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-6 border-t border-neutral-700 pt-6 mt-6">
+                  <div className="space-y-4">
+                    <h4 className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-white font-semibold`}>Details:</h4>
+                    <p className={`${width < 480 ? 'text-xs' : 'text-sm'} text-neutral-300 leading-relaxed`}>
+                      {item.details}
+                    </p>
+                  </div>
+                  
+                  {item.skills && (
+                    <div className="space-y-4">
+                      <h4 className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-white font-semibold`}>Technologies:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {item.skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className={`px-2 py-1 bg-neutral-800 text-neutral-300 ${width < 480 ? 'text-xs px-2 py-1' : (isMobile ? 'text-xs px-3 py-2' : 'text-sm px-3 py-2')} rounded-full border border-neutral-700`}
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <Button 
+                    variant="outline" 
+                    size={width < 480 ? "sm" : (isMobile ? "sm" : "default")}
+                    className="bg-transparent border-neutral-600 text-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-500"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (item.link) window.open(item.link, '_blank')
+                    }}
+                    disabled={!item.link}
+                  >
+                    Details
+                  </Button>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
       
-      {!isMobile && !isTablet && (
-        <div className={`w-1/2 ${isLeft ? 'order-last' : ''}`}></div>
+      {!isMobile && width >= 1024 && (
+        <div className={`w-1/2 ${isRight ? 'order-first' : 'order-last'}`}></div>
       )}
     </motion.div>
   )
 })
 
-// ========================================
-// MAIN EXPERIENCE COMPONENT
-// ========================================
-
 export default function Experience() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
-  const { isMobile, isTablet, isDesktop, dimensions } = useResponsive()
+  const dimensions = useResponsive()
   const [activeCardIndex, setActiveCardIndex] = useState(0)
   
+  // FIXED: Added layoutEffect: false to prevent hydration error
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
+    layoutEffect: false
   })
 
-  const { minDate, maxDate } = useMemo(() => getTimelineBounds(timelineData), [])
-
-  // Timeline bounds - dots positioned precisely between first and last cards
   const { lineStartVh, lineEndVh, dotPositions } = useMemo(() => {
-    const dockHeight = isMobile ? 100 : 120
-    const topMargin = 100 // More space from top
-    const bottomMargin = dockHeight + 50 // More space above dock
+    const dockHeight = dimensions.isMobile ? 100 : 120
+    const topMargin = 100
+    const bottomMargin = dockHeight + 50
     
     const lineStartVh = (topMargin / dimensions.height) * 100
     const lineEndVh = ((dimensions.height - bottomMargin) / dimensions.height) * 100
     
-    // Calculate exact dot positions
     const totalLineHeight = lineEndVh - lineStartVh
     const dotPositions = timelineData.map((_, index) => 
       lineStartVh + (totalLineHeight * index / (timelineData.length - 1))
     )
     
     return { lineStartVh, lineEndVh, dotPositions }
-  }, [dimensions.height, isMobile])
+  }, [dimensions])
 
-  // Line height based on active card index, not scroll progress
   const lineProgressHeight = useMemo(() => {
-    if (activeCardIndex === 0) return "0%"
-    
     const totalLineHeight = lineEndVh - lineStartVh
     const progressHeight = (totalLineHeight * activeCardIndex / (timelineData.length - 1))
     return `${progressHeight}vh`
   }, [activeCardIndex, lineEndVh, lineStartVh])
 
-  const [currentScrollProgress, setCurrentScrollProgress] = useState(0)
-  
-  React.useEffect(() => {
-    const unsubscribe = scrollYProgress.on("change", (latest) => {
-      setCurrentScrollProgress(latest)
-    })
-    return unsubscribe
-  }, [scrollYProgress])
-
-  // Handle card center change
-  const handleCardCenterChange = useCallback((index: number) => {
-    setActiveCardIndex(index)
-  }, [])
-
-  // Scroll to specific card (center it perfectly)
   const scrollToSection = useCallback((index: number) => {
-    // Calculate the exact scroll position to center the card
-    const viewportHeight = window.innerHeight
-    const targetY = index * viewportHeight
-    
+    const targetY = index * window.innerHeight
     window.scrollTo({
       top: targetY,
       behavior: 'smooth'
     })
   }, [])
 
-  const timelinePositions = useMemo(() => {
-    return timelineData.map(item => {
-      return calculateTimelinePosition(item.startDate, minDate, maxDate)
-    })
-  }, [minDate, maxDate])
-
-  // Enhanced timeline positioning
-  const getTimelinePosition = () => {
-    if (dimensions.width < 480) {
-      return { left: "64px", transform: "translateX(0)" }
-    } else if (dimensions.width < 768) {
-      return { left: "72px", transform: "translateX(0)" }
-    } else {
-      return { left: "50%", transform: "translateX(-50%)" }
-    }
-  }
-
-  const timelinePosition = getTimelinePosition()
+  const timelinePosition = useMemo(() => {
+    if (dimensions.width < 480) return { left: "64px", transform: "translateX(0)" }
+    if (dimensions.width < 768) return { left: "72px", transform: "translateX(0)" }
+    return { left: "50%", transform: "translateX(-50%)" }
+  }, [dimensions.width])
 
   return (
     <div className="min-h-screen bg-neutral-950 relative overflow-hidden">
       <HomeDock />
       
       <div ref={containerRef} className="relative z-10">
-        {/* Background timeline line */}
         <motion.div
           className="fixed w-0.5 bg-neutral-600 z-20"
           style={{
             left: timelinePosition.left,
             transform: timelinePosition.transform,
             top: `${lineStartVh}vh`,
-            height: `${lineEndVh - lineStartVh}vh`,
+            height: `${lineEndVh - lineStartVh}vh`
           }}
           initial={{ scaleY: 0 }}
           animate={{ scaleY: 1 }}
-          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
         />
 
-        {/* Animated progress line - only reaches to active card's dot */}
         <motion.div
           className="fixed w-0.5 bg-gradient-to-b from-white via-white to-neutral-300 origin-top z-20"
           style={{
             left: timelinePosition.left,
             transform: timelinePosition.transform,
             top: `${lineStartVh}vh`,
-            willChange: 'height',
             filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.3))'
           }}
-          animate={{
-            height: lineProgressHeight
-          }}
-          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          animate={{ height: lineProgressHeight }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         />
 
-        {/* Timeline dots positioned at exact calculated positions */}
         {timelineData.map((item, index) => (
           <motion.div
-            key={`dot-${item.id}-${dimensions.width}`}
+            key={item.id}
             className="fixed z-30"
             style={{
               left: timelinePosition.left,
               transform: timelinePosition.transform,
-              top: `${dotPositions[index]}vh`,
+              top: `${dotPositions[index]}vh`
             }}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ 
-              duration: 0.3, 
-              ease: [0.4, 0, 0.2, 1], 
-              delay: 0.3 + (index * 0.05) 
-            }}
+            transition={{ delay: 0.3 + (index * 0.05) }}
           >
             <TimelineDot
               item={item}
               index={index}
-              scrollProgress={currentScrollProgress}
               onDotClick={scrollToSection}
-              timelinePosition={timelinePositions[index]}
-              isMobile={isMobile}
               activeCardIndex={activeCardIndex}
+              isMobile={dimensions.isMobile}
             />
           </motion.div>
         ))}
 
-        {/* Card sections */}
         <div>
           {timelineData.map((item, index) => (
-            <div
+            <TimelineCard 
               key={`${item.id}-${dimensions.width}`}
-              ref={(el) => {
-                cardRefs.current[index] = el
-              }}
-            >
-              <TimelineCard 
-                item={item} 
-                index={index} 
-                totalItems={timelineData.length}
-                isMobile={isMobile}
-                isTablet={isTablet}
-                dimensions={dimensions}
-                onCenterChange={handleCardCenterChange}
-              />
-            </div>
+              item={item} 
+              index={index} 
+              onCenterChange={setActiveCardIndex}
+              dimensions={dimensions}
+            />
           ))}
         </div>
       </div>
