@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import { HomeDock } from "@/components/AppBar";
+import { TweetSkeleton } from "@/components/magicui/TweetCard";
 import { TweetSkeleton } from "@/components/magicui/TweetCard";
 import Image from "next/image";
 
@@ -20,6 +22,23 @@ interface Tweet {
   replies: number;
 }
 
+/**
+ * Picture Card Component - Landscape oriented cards
+ */
+function PictureCard({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="relative overflow-hidden rounded-xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] bg-white/5 backdrop-blur-md border border-neutral-800 z-30">
+      <div 
+        className="relative w-full"
+        style={{ aspectRatio: '16/9' }}
+      >
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className="object-cover"
+        />
+      </div>
 /**
  * Picture Card Component - Landscape oriented cards
  */
@@ -70,7 +89,52 @@ function TweetCard({ tweet }: { tweet: Tweet }) {
         {/* Header */}
         <div className="flex flex-row justify-between tracking-tight">
           <div className="flex items-center space-x-3">
+  );
+}
+
+/**
+ * Picture Cards Row Component - 2 cards side by side extending to page edges
+ */
+function PictureCardsRow({ images }: { images: Array<{ src: string; alt: string }> }) {
+  return (
+    <div className="w-full px-2 mb-6 relative z-30">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-30">
+        {images.map((image, index) => (
+          <PictureCard 
+            key={index}
+            src={image.src}
+            alt={image.alt}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Simple Tweet Card Component - Creates a visual tweet card from your data
+ */
+function TweetCard({ tweet }: { tweet: Tweet }) {
+  return (
+    <div className="w-80 flex-shrink-0 mx-2">
+      <div className="relative flex size-full max-w-lg flex-col gap-3 overflow-hidden rounded-lg border border-neutral-800 p-4 backdrop-blur-md bg-white/5 hover:bg-white/10 transition-colors duration-200 h-full">
+        {/* Header */}
+        <div className="flex flex-row justify-between tracking-tight">
+          <div className="flex items-center space-x-3">
           <Image
+  src={tweet.user.avatar}
+  alt={`${tweet.user.username} profile picture`}
+  height={40}
+  width={40}
+  className="overflow-hidden rounded-full border border-transparent"
+/>
+            <div>
+              <div className="flex items-center whitespace-nowrap font-semibold text-white">
+                {tweet.user.name}
+              </div>
+              <div className="text-sm text-gray-400">
+                @{tweet.user.username} · {tweet.timestamp}
+              </div>
   src={tweet.user.avatar}
   alt={`${tweet.user.username} profile picture`}
   height={40}
@@ -94,12 +158,44 @@ function TweetCard({ tweet }: { tweet: Tweet }) {
             className="size-5 text-white transition-all ease-in-out hover:scale-105"
           />
         </div>
+          <Image
+            src="/x.svg"
+            alt="X (Twitter) Icon"
+            height={20}
+            width={20}
+            className="size-5 text-white transition-all ease-in-out hover:scale-105"
+          />
+        </div>
 
         {/* Content */}
         <div className="break-words leading-normal tracking-tighter text-white text-sm">
           {tweet.content}
         </div>
+        {/* Content */}
+        <div className="break-words leading-normal tracking-tighter text-white text-sm">
+          {tweet.content}
+        </div>
 
+        {/* Metrics */}
+        <div className="flex items-center space-x-4 text-sm text-gray-400 mt-auto">
+          <div className="flex items-center space-x-1">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+            </svg>
+            <span>{tweet.likes}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            <span>{tweet.retweets}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
+            </svg>
+            <span>{tweet.replies}</span>
+          </div>
         {/* Metrics */}
         <div className="flex items-center space-x-4 text-sm text-gray-400 mt-auto">
           <div className="flex items-center space-x-1">
@@ -130,23 +226,90 @@ function TweetCard({ tweet }: { tweet: Tweet }) {
  * Fixed Animated Row Component - Addresses lower row animation issues
  */
 function AnimatedRow({
+  );
+}
+
+/**
+ * Fixed Animated Row Component - Addresses lower row animation issues
+ */
+function AnimatedRow({
   tweets,
   direction,
+  speed = 50,
   speed = 50,
   rowIndex = 0,
 }: { 
   tweets: Tweet[]; 
   direction: "left" | "right"; 
   speed?: number;
+  speed?: number;
   rowIndex?: number;
+}) {
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
   const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const [isPaused, setIsPaused] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
   const animate = useCallback(() => {
+    const row = rowRef.current;
+    if (!row || isPaused || !isReady) return;
+
+    const scrollWidth = row.scrollWidth;
+    const clientWidth = row.clientWidth;
+    const maxScroll = scrollWidth - clientWidth;
+
+    if (maxScroll <= 0) return;
+
+    if (direction === "left") {
+      if (row.scrollLeft >= maxScroll) {
+        row.scrollLeft = 0;
+      } else {
+        row.scrollLeft += 1;
+      }
+    } else {
+      if (row.scrollLeft <= 0) {
+        row.scrollLeft = maxScroll;
+      } else {
+        row.scrollLeft -= 1;
+      }
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      animationFrameRef.current = requestAnimationFrame(animate);
+    }, speed);
+  }, [direction, speed, isPaused, isReady]);
+
+  useEffect(() => {
+    const initializeRow = () => {
+      const row = rowRef.current;
+      if (!row) return;
+
+      const checkContent = () => {
+        const scrollWidth = row.scrollWidth;
+        const clientWidth = row.clientWidth;
+        
+        if (scrollWidth > clientWidth) {
+          if (direction === "right") {
+            row.scrollLeft = scrollWidth - clientWidth;
+          } else {
+            row.scrollLeft = 0;
+          }
+          setIsReady(true);
+        } else {
+          setTimeout(checkContent, 100);
+        }
+      };
+
+      setTimeout(checkContent, rowIndex * 200);
+    };
+
+    initializeRow();
+  }, [direction, rowIndex]);
     const row = rowRef.current;
     if (!row || isPaused || !isReady) return;
 
@@ -217,8 +380,27 @@ function AnimatedRow({
         }
       }, 100);
     }
+    if (isReady && !isPaused) {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      setTimeout(() => {
+        if (isReady && !isPaused) {
+          animate();
+        }
+      }, 100);
+    }
 
     return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -227,7 +409,9 @@ function AnimatedRow({
       }
     };
   }, [animate, isReady, isPaused]);
+  }, [animate, isReady, isPaused]);
 
+  const handleMouseEnter = () => {
   const handleMouseEnter = () => {
     setIsPaused(true);
     if (animationFrameRef.current) {
@@ -235,17 +419,32 @@ function AnimatedRow({
     }
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
     }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+  };
   };
 
   const handleMouseLeave = () => {
+  const handleMouseLeave = () => {
     setIsPaused(false);
+  };
   };
 
   return (
     <div className="mb-6">
+    <div className="mb-6">
       <div
         ref={rowRef}
+        className="flex overflow-x-hidden py-2"
+        style={{ 
+          scrollbarWidth: "none", 
+          msOverflowStyle: "none",
+          WebkitOverflowScrolling: "touch"
+        }}
         className="flex overflow-x-hidden py-2"
         style={{ 
           scrollbarWidth: "none", 
@@ -264,11 +463,24 @@ function AnimatedRow({
         <div className="flex">
           {[...tweets, ...tweets, ...tweets, ...tweets, ...tweets].map((tweet, index) => (
             <TweetCard key={`${tweet.id}-${index}-row${rowIndex}`} tweet={tweet} />
+        <style jsx>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+        
+        <div className="flex">
+          {[...tweets, ...tweets, ...tweets, ...tweets, ...tweets].map((tweet, index) => (
+            <TweetCard key={`${tweet.id}-${index}-row${rowIndex}`} tweet={tweet} />
           ))}
         </div>
       </div>
     </div>
   );
+}
+
+/**
+ * Main Blog Page Component - NO MOCK DATA EVER DISPLAYED
 }
 
 /**
@@ -354,8 +566,20 @@ if (data.tweets && Array.isArray(data.tweets)) {
 
     // Split into two equal rows
     const midPoint = Math.ceil(allTweets.length / 2);
+    const minTweetsPerRow = 3;
+    let allTweets = [...tweets];
+    
+    // Only duplicate if we have real tweets
+    while (allTweets.length < minTweetsPerRow * 2 && tweets.length > 0) {
+      allTweets = [...allTweets, ...tweets];
+    }
+
+    // Split into two equal rows
+    const midPoint = Math.ceil(allTweets.length / 2);
     
     return [
+      allTweets.slice(0, midPoint),
+      allTweets.slice(midPoint)
       allTweets.slice(0, midPoint),
       allTweets.slice(midPoint)
     ].filter(row => row.length > 0);
@@ -449,16 +673,22 @@ if (data.tweets && Array.isArray(data.tweets)) {
       
       <div className="w-full relative z-30 pt-6">
         <PictureCardsRow images={pictureData.slice(0, 2)} />
+      {/* Show data source indicator (for debugging) */}
+      
+      <div className="w-full relative z-30 pt-6">
+        <PictureCardsRow images={pictureData.slice(0, 2)} />
       </div>
       
       <div className="relative">
         <LandingOverlay />
+        
         
         <div className="w-full relative z-10">
           {tweetRows[0] && (
             <AnimatedRow
               tweets={tweetRows[0]}
               direction="left"
+              speed={25}
               speed={25}
               rowIndex={0}
             />
@@ -467,6 +697,7 @@ if (data.tweets && Array.isArray(data.tweets)) {
       </div>
       
       <div className="w-full relative z-30">
+        <PictureCardsRow images={pictureData.slice(2, 4)} />
         <PictureCardsRow images={pictureData.slice(2, 4)} />
       </div>
       
@@ -477,6 +708,7 @@ if (data.tweets && Array.isArray(data.tweets)) {
             <AnimatedRow
               tweets={tweetRows[1]}
               direction="right"
+              speed={25}
               speed={25}
               rowIndex={1}
             />

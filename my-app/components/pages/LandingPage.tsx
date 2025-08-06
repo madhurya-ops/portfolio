@@ -1,6 +1,6 @@
 "use client";
-import React, { useMemo } from "react";
-import { Boxes } from "@/components/Boxes";
+import React, { useMemo, useRef } from "react";
+import { Boxes, BoxesRef } from "@/components/Boxes";
 import { HomeDock } from "@/components/AppBar";
 import NameCard from "@/components/magicui/NameCard";
 
@@ -19,6 +19,14 @@ LandingOverlay.displayName = 'LandingOverlay';
 
 // Main Landing Page component
 export const LandingPage = () => {
+  // Reference to the Boxes component to trigger wave
+  const boxesRef = useRef<BoxesRef>(null);
+
+  // Handle NameCard click to trigger radial wave
+  const handleNameCardClick = () => {
+    boxesRef.current?.triggerRadialWave();
+  };
+
   // Memoized transform style for NameCard positioning
   const nameCardStyle = useMemo(() => ({
     transform: `translate(2%,-2%) scale(1) rotate(0deg) translateZ(0)`,
@@ -51,9 +59,13 @@ export const LandingPage = () => {
       >
         <LandingOverlay />
         <div className="boxes-container">
-          <Boxes />
+          <Boxes ref={boxesRef} />
         </div>
-        <div className="z-50" style={nameCardStyle}>
+        <div 
+          className="z-50 cursor-pointer" 
+          style={nameCardStyle}
+          onClick={handleNameCardClick}
+        >
           <NameCard />
         </div>
         <HomeDock />
