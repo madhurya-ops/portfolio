@@ -146,7 +146,7 @@ export default function NameCard() {
                     }}
                   >
                     Madhurya
-                    Madhurya
+                    Mishra
                   </p>
                   <p className="text-lg font-mono font-light text-zinc-500/90 transition-all duration-500 ease-out">
                     @with_maddy_
