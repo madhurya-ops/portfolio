@@ -5,16 +5,16 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
 # Install dependencies
-RUN npm ci
+RUN yarn install --frozen-lockfile
 
 # Copy all files
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN yarn build
 
 # Production stage
 FROM node:20-alpine AS runner
@@ -24,14 +24,15 @@ WORKDIR /app
 # Copy built application
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/package.json /app/yarn.lock ./
 COPY --from=builder /app/next.config.ts ./
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Reuse the builder's dependencies: next start needs typescript (a dev
+# dependency) to load next.config.ts
+COPY --from=builder /app/node_modules ./node_modules
 
 # Expose port
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["yarn", "start"]

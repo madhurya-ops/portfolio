@@ -12,7 +12,8 @@ export default function NameCard() {
   const [isHovered, setIsHovered] = useState(false)
   const [isInitialLoad] = useState(true)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [currentTime, setCurrentTime] = useState(new Date());
+  // Null until mount so the server and client render the same markup
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function NameCard() {
     }, 3000);
 
     // Update time every second
+    setCurrentTime(new Date());
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
@@ -53,24 +55,34 @@ export default function NameCard() {
           <p className="text-s font-light">Available for work</p>
         </div>
         <div className="flex items-center justify-center">
-          <time
-            className="text-[11px] font-light font-mono tabular-nums tracking-wider text-zinc-500"
-            dateTime={currentTime.toISOString()}
-            aria-label="Current time"
-          >
-            {currentTime.toLocaleDateString("en-US", {
-              month: "2-digit",
-              day: "2-digit",
-              year: "numeric",
-            })}
-            ,{" "}
-            {currentTime.toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: true,
-            })}
-          </time>
+          {currentTime ? (
+            <time
+              className="text-[11px] font-light font-mono tabular-nums tracking-wider text-zinc-500"
+              dateTime={currentTime.toISOString()}
+              aria-label="Current time"
+            >
+              {currentTime.toLocaleDateString("en-US", {
+                month: "2-digit",
+                day: "2-digit",
+                year: "numeric",
+              })}
+              ,{" "}
+              {currentTime.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+              })}
+            </time>
+          ) : (
+            // Same-width placeholder keeps the layout steady before mount
+            <span
+              className="invisible text-[11px] font-light font-mono tabular-nums tracking-wider"
+              aria-hidden="true"
+            >
+              00/00/0000, 00:00:00 AM
+            </span>
+          )}
         </div>
       </div>
       <div
