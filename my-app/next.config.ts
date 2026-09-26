@@ -1,6 +1,13 @@
+import path from "path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin the project root to my-app so the repo-root lockfile isn't picked up
+  outputFileTracingRoot: path.join(__dirname),
+  turbopack: {
+    root: path.join(__dirname),
+  },
+
   // Disable source maps in production
   productionBrowserSourceMaps: false,
 
