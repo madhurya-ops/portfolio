@@ -187,6 +187,15 @@ const TimelineCard = React.memo(function TimelineCard({
     setIsExpanded(false)
   }, [width])
 
+  // On mobile, bring a freshly expanded card fully into view above the dock
+  useEffect(() => {
+    if (!isMobile || !isExpanded) return
+    const timeout = setTimeout(() => {
+      cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }, 350)
+    return () => clearTimeout(timeout)
+  }, [isMobile, isExpanded])
+
   return (
     <motion.div
       ref={ref}
@@ -201,7 +210,7 @@ const TimelineCard = React.memo(function TimelineCard({
             cardRef.current = el
             registerCard(index, el)
           }}
-          className="cursor-pointer w-full max-w-none"
+          className="cursor-pointer w-full max-w-none scroll-mt-20 scroll-mb-28"
           onMouseMove={handleMouseMove}
           onMouseEnter={() => !isMobile && setIsExpanded(true)}
           onMouseLeave={() => setIsExpanded(false)}
@@ -261,7 +270,7 @@ const TimelineCard = React.memo(function TimelineCard({
                 className="overflow-hidden"
               >
                 <div
-                  className="space-y-6 border-t border-neutral-700 pt-6 mt-6 max-h-[45vh] overflow-y-auto overscroll-contain pr-1"
+                  className={`space-y-6 border-t border-neutral-700 pt-6 mt-6 ${isMobile ? 'max-h-[30vh]' : 'max-h-[45vh]'} overflow-y-auto overscroll-contain pr-1 [scrollbar-width:thin] [scrollbar-color:#525252_transparent]`}
                   onClick={(e) => isMobile && e.stopPropagation()}
                 >
                   <div className="space-y-4">
