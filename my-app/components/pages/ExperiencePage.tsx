@@ -134,7 +134,9 @@ const TimelineCard = React.memo(function TimelineCard({
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   
   const isInView = useInView(ref, { amount: 0.5, once: false })
-  const { isMobile, width } = dimensions
+  const { isMobile, width, height } = dimensions
+  // On short screens the description joins the scrolling area once expanded
+  const descriptionScrolls = isExpanded && height < 700
   
   // First card on RIGHT (index 0), second on LEFT (index 1), etc.
   const isRight = isMobile || index % 2 === 0
@@ -259,9 +261,11 @@ const TimelineCard = React.memo(function TimelineCard({
                     </div>
                   )}
                 </div>
-                <p className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-300 leading-relaxed`}>
-                  {item.description}
-                </p>
+                {!descriptionScrolls && (
+                  <p className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-300 leading-relaxed`}>
+                    {item.description}
+                  </p>
+                )}
               </div>
 
               <motion.div
@@ -273,6 +277,11 @@ const TimelineCard = React.memo(function TimelineCard({
                   className={`space-y-6 border-t border-neutral-700 pt-6 mt-6 ${isMobile ? 'max-h-[30vh]' : 'max-h-[45vh]'} overflow-y-auto overscroll-contain pr-1 [scrollbar-width:thin] [scrollbar-color:#525252_transparent]`}
                   onClick={(e) => isMobile && e.stopPropagation()}
                 >
+                  {descriptionScrolls && (
+                    <p className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-300 leading-relaxed`}>
+                      {item.description}
+                    </p>
+                  )}
                   <div className="space-y-4">
                     <h4 className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-white font-semibold`}>Details:</h4>
                     <p className={`${width < 480 ? 'text-xs' : 'text-sm'} text-neutral-300 leading-relaxed`}>
