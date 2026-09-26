@@ -4,66 +4,7 @@ import React, { useRef, useState, useCallback, useMemo, useEffect } from "react"
 import { motion, useScroll, useInView, useAnimation } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { HomeDock } from "@/components/AppBar"
-
-interface TimelineItem {
-  id: string
-  tagline: string
-  heading: string
-  description: string
-  details: string
-  skills?: string[]
-  link?: string
-  startDate: Date
-  endDate: Date
-}
-
-const timelineData: TimelineItem[] = [
-  {
-    id: "1",
-    tagline: "June 2025 - Present",
-    heading: "LegalDoc",
-    description: "Engineered a comprehensive legal document processing application with AI-powered analysis capabilities and user authentication system.",
-    details: "Developed a full-stack application using React frontend and FastAPI backend with PostgreSQL authentication. Implemented Generative AI (LLM) to extract key clauses, obligations, penalties, and dates from complex legal texts. Built complete authentication system with JWT tokens, password hashing using Bcrypt, and comprehensive input validation. Created Docker containerization for easy deployment and added comprehensive API documentation with automated testing capabilities.",
-    skills: ["React", "FastAPI", "PostgreSQL", "LLM", "NLP", "JWT", "Bcrypt", "Docker", "Python", "Generative AI"],
-    link: "https://github.com/madhurya-ops/Legal-Document-Parser",
-    startDate: new Date("2025-06-01"),
-    endDate: new Date()
-  },
-  {
-    id: "2",
-    tagline: "April 2025",
-    heading: "Stock Price LSTM Forecasting",
-    description: "Engineered a 3-layer LSTM model (128-64-32 units) with dropout, batch normalization, and L2 regularization, achieving R² = 0.96.",
-    details: "Trained on 5,000+ data points using EarlyStopping and learning rate scheduling, reducing validation loss by 70% and doubling convergence speed. Designed a time series pipeline with a 30-day lookback and MinMax scaling, improving model stability and reducing prediction variance by 15%. Visualized outputs with Matplotlib to track trends, enabling a 10% decrease in forecast deviation.",
-    skills: ["Python", "LSTM", "Deep Learning", "Time Series", "Matplotlib", "Machine Learning"],
-    link: "https://github.com/madhurya-ops/Stock-Price-Prediction",
-    startDate: new Date("2025-04-01"),
-    endDate: new Date("2025-04-30")
-  },
-  {
-    id: "3",
-    tagline: "Nov 2024",
-    heading: "Bell's Palsy Severity Detection",
-    description: "Engineered a ResNet50-based CNN to classify Bell's Palsy severity into 4 levels, achieving 98.79% accuracy for mouth analysis.",
-    details: "Fine-tuned the last 20 layers of ResNet50 with transfer learning, optimizing training using Adam, cross-entropy loss, early stopping, and learning rate scheduling. Augmented 1,000+ images (from 14,000+) with rotation, zoom, flip, and shear to improve generalization and address class imbalance. Evaluated model performance using confusion matrices, precision, recall, F1-score, and ROC-AUC.",
-    skills: ["Python", "ResNet50", "CNN", "Transfer Learning", "Computer Vision", "Deep Learning", "Machine Learning"],
-    link: "https://github.com/Chai-B/Bell-s-Palsy-Severity-Detection",
-    startDate: new Date("2024-11-01"),
-    endDate: new Date("2024-11-30")
-  },
-  {
-    id: "4",
-    tagline: "May 2024 - July 2024",
-    heading: "Software Engineer",
-    description: "Developed a Flutter-based mobile app for tracking vital nutrition metrics in preterm infants, revolutionizing neonatal care through enhanced data handling and advanced validation.",
-    details: "Designed and deployed a cross-platform Flutter app for neonatal nutrition tracking, cutting manual effort by 60% and improving patient outcomes by 25%. Achieved 70% crash rate reduction and 30% faster load times through modular architecture and performance profiling.",
-    skills: ["Flutter", "Firebase", "Hive", "Mobile App Development", "Performance Optimization", "Cross-Platform Testing", "Data Validation", "Healthcare Informatics"],
-    link: "https://drive.google.com/file/d/10PxxSBUCXdJxS07pkpzor3U2x-52hGta/view?usp=drive_link",
-    startDate: new Date("2024-05-01"),
-    endDate: new Date("2024-07-31")
-  }
-  
-].sort((a, b) => b.startDate.getTime() - a.startDate.getTime())
+import { timelineData, type TimelineItem } from "@/lib/experience"
 
 const useResponsive = () => {
   const [dimensions, setDimensions] = useState({
@@ -178,11 +119,13 @@ const TimelineCard = React.memo(function TimelineCard({
   item, 
   index, 
   onCenterChange,
+  registerCard,
   dimensions
 }: { 
   item: TimelineItem
   index: number
   onCenterChange: (index: number) => void
+  registerCard: (index: number, el: HTMLDivElement | null) => void
   dimensions: { width: number; height: number; isMobile: boolean }
 }) {
   const ref = useRef(null)
@@ -247,14 +190,17 @@ const TimelineCard = React.memo(function TimelineCard({
   return (
     <motion.div
       ref={ref}
-      className={`relative ${isMobile ? 'h-auto min-h-screen py-8' : 'h-screen'} flex`}
+      className={`relative ${isMobile ? 'h-auto min-h-screen pt-8 pb-28' : 'h-screen'} flex`}
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 30, scale: 0.95 }}
       key={`${width}-${isMobile}`}
     >
       <div className={`${isMobile ? `w-full ${getPaddingClasses()}` : (width < 1024 ? 'w-full px-8' : 'w-1/2')} flex items-center justify-center relative ${isRight ? 'order-last' : 'order-first'}`}>
         <motion.div
-          ref={cardRef}
+          ref={(el) => {
+            cardRef.current = el
+            registerCard(index, el)
+          }}
           className="cursor-pointer w-full max-w-none"
           onMouseMove={handleMouseMove}
           onMouseEnter={() => !isMobile && setIsExpanded(true)}
@@ -286,12 +232,24 @@ const TimelineCard = React.memo(function TimelineCard({
             
             <div className={`relative z-20 ${width < 480 ? 'p-4' : (isMobile ? 'p-5' : 'p-8')}`}>
               <div className="space-y-5">
-                <div className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-400 font-medium uppercase tracking-wider`}>
-                  {item.tagline}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-400 font-medium uppercase tracking-wider`}>
+                    {item.tagline}
+                  </div>
+                  <span className="px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-neutral-300 bg-neutral-900 border border-neutral-700 rounded-full">
+                    {item.type === "work" ? "Work" : "Project"}
+                  </span>
                 </div>
-                <h3 className={`${width < 480 ? 'text-lg' : (isMobile ? 'text-xl' : 'text-2xl')} font-bold text-white leading-tight`}>
-                  {item.heading}
-                </h3>
+                <div className="space-y-1">
+                  <h3 className={`${width < 480 ? 'text-lg' : (isMobile ? 'text-xl' : 'text-2xl')} font-bold text-white leading-tight`}>
+                    {item.heading}
+                  </h3>
+                  {item.company && (
+                    <div className={`${width < 480 ? 'text-xs' : 'text-sm'} text-neutral-400`}>
+                      {item.company}
+                    </div>
+                  )}
+                </div>
                 <p className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-neutral-300 leading-relaxed`}>
                   {item.description}
                 </p>
@@ -302,7 +260,10 @@ const TimelineCard = React.memo(function TimelineCard({
                 animate={{ opacity: isExpanded ? 1 : 0, height: isExpanded ? "auto" : 0 }}
                 className="overflow-hidden"
               >
-                <div className="space-y-6 border-t border-neutral-700 pt-6 mt-6">
+                <div
+                  className="space-y-6 border-t border-neutral-700 pt-6 mt-6 max-h-[45vh] overflow-y-auto overscroll-contain pr-1"
+                  onClick={(e) => isMobile && e.stopPropagation()}
+                >
                   <div className="space-y-4">
                     <h4 className={`${width < 480 ? 'text-xs' : (isMobile ? 'text-sm' : 'text-base')} text-white font-semibold`}>Details:</h4>
                     <p className={`${width < 480 ? 'text-xs' : 'text-sm'} text-neutral-300 leading-relaxed`}>
@@ -326,18 +287,24 @@ const TimelineCard = React.memo(function TimelineCard({
                     </div>
                   )}
                   
-                  <Button 
-                    variant="outline" 
-                    size={width < 480 ? "sm" : (isMobile ? "sm" : "default")}
-                    className="bg-transparent border-neutral-600 text-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-500"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (item.link) window.open(item.link, '_blank')
-                    }}
-                    disabled={!item.link}
-                  >
-                    Details
-                  </Button>
+                  {item.links && item.links.length > 0 && (
+                    <div className="flex flex-wrap gap-3">
+                      {item.links.map((link) => (
+                        <Button 
+                          key={link.url}
+                          variant="outline" 
+                          size={width < 480 ? "sm" : (isMobile ? "sm" : "default")}
+                          className="bg-transparent border-neutral-600 text-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-500"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.open(link.url, '_blank', 'noopener,noreferrer')
+                          }}
+                        >
+                          {link.label}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </div>
@@ -354,6 +321,7 @@ const TimelineCard = React.memo(function TimelineCard({
 
 export default function Experience() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
   const dimensions = useResponsive()
   const [activeCardIndex, setActiveCardIndex] = useState(0)
   const [isClient, setIsClient] = useState(false)
@@ -391,14 +359,13 @@ export default function Experience() {
     return `${progressHeight}vh`
   }, [activeCardIndex, lineEndVh, lineStartVh])
 
+  const registerCard = useCallback((index: number, el: HTMLDivElement | null) => {
+    cardRefs.current[index] = el
+  }, [])
+
   const scrollToSection = useCallback((index: number) => {
-    if (!isClient) return
-    const targetY = index * window.innerHeight
-    window.scrollTo({
-      top: targetY,
-      behavior: 'smooth'
-    })
-  }, [isClient])
+    cardRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [])
 
   const timelinePosition = useMemo(() => {
     if (dimensions.width < 480) return { left: "64px", transform: "translateX(0)" }
@@ -477,6 +444,7 @@ export default function Experience() {
               item={item} 
               index={index} 
               onCenterChange={setActiveCardIndex}
+              registerCard={registerCard}
               dimensions={dimensions}
             />
           ))}
