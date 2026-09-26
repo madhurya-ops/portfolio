@@ -27,8 +27,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json /app/yarn.lock ./
 COPY --from=builder /app/next.config.ts ./
 
-# Install only production dependencies
-RUN yarn install --frozen-lockfile --production && yarn cache clean
+# Reuse the builder's dependencies: next start needs typescript (a dev
+# dependency) to load next.config.ts
+COPY --from=builder /app/node_modules ./node_modules
 
 # Expose port
 EXPOSE 3000
