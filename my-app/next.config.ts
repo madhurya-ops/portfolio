@@ -7,9 +7,9 @@ const nextConfig: NextConfig = {
   // Disable React Strict Mode to reduce double rendering in development
   reactStrictMode: false,
 
-  // External image domains allowed for next/image
-  images: {
-    domains: ["pbs.twimg.com"],
+  // The blog was removed; send old links home
+  async redirects() {
+    return [{ source: "/blog", destination: "/", permanent: true }];
   },
 
   // Disable Next.js telemetry and loader optimization

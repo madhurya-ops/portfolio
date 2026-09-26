@@ -8,7 +8,6 @@ import {
   LinkedinIcon,
   MailIcon,
   //MessageCircleIcon,
-  BookText,
   SquareUserRound,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -29,11 +28,6 @@ const dockItems = [
     name: "Experience",
     href: "/experience",
     icon: <BriefcaseBusinessIcon className="text-white"/>,
-  },
-  {
-    name: "Blog",
-    href: "/blog",
-    icon: <BookText className="text-white"/>,
   },
   {
     name: "Art",
