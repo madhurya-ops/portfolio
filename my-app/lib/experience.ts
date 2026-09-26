@@ -36,10 +36,13 @@ export const timelineData: TimelineItem[] = ([
     type: "project",
     tagline: "May 2026 – Present",
     heading: "Atlas",
-    description: "Co-developed an AI-powered job search platform.",
-    details: "Scrapes job postings, ranks them against your resume, tailors resumes, drafts outreach, and tracks applications.",
-    skills: ["Next.js", "FastAPI", "Python", "Chrome Extension (MV3)", "LLMs"],
-    links: [{ label: "GitHub", url: "https://github.com/ProjectAtlas-Job" }],
+    description: "Built an AI-powered job search platform that brings job discovery, resume tailoring, application tracking and recruiter outreach into one web app, plus a companion Chrome extension.",
+    details: "Built a full-stack platform with a Next.js 15 (TypeScript) frontend and an async FastAPI backend on PostgreSQL with pgvector. Used the Groq LLM API with Instructor to parse, score and tailor resumes, and LangGraph agents to automate multi-step tasks. Added semantic job matching with Model2Vec and Sentence-Transformers embeddings and a cross-encoder reranker, and exported tailored resumes to PDF and DOCX. Wrote job scrapers covering several job boards, including Workday, with background processing on Redis and arq workers. Added secure authentication with JWT, Bcrypt, and Google and GitHub OAuth, and integrated Gmail for outreach. Built a Chrome extension that shows match scores on job pages, fills application forms and tracks applications in one click. Also added a remote MCP server with OAuth 2.1. Containerized the stack with Docker Compose and Caddy, set up CI/CD with GitHub Actions, and added monitoring with Prometheus, Grafana and Sentry.",
+    skills: ["Next.js", "React", "TypeScript", "Tailwind CSS", "FastAPI", "Python", "PostgreSQL", "pgvector", "SQLAlchemy", "Redis", "LLM", "Generative AI", "LangGraph", "NLP", "spaCy", "Sentence-Transformers", "JWT", "OAuth", "Bcrypt", "Docker", "GitHub Actions", "Prometheus", "Grafana", "Chrome Extension"],
+    links: [
+      { label: "Live", url: "https://www.myjobatlas.site/" },
+      { label: "GitHub", url: "https://github.com/ProjectAtlas-Job" }
+    ],
     startDate: new Date("2026-05-01"),
     endDate: new Date()
   },
