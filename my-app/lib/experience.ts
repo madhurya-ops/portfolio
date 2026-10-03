@@ -35,12 +35,12 @@ export const timelineData: TimelineItem[] = ([
     id: "6",
     type: "project",
     tagline: "May 2026 – Present",
-    heading: "Atlas",
+    heading: "Workage",
     description: "Built an AI-powered job search platform that brings job discovery, resume tailoring, application tracking and recruiter outreach into one web app, plus a companion Chrome extension.",
     details: "Built a full-stack platform with a Next.js 15 (TypeScript) frontend and an async FastAPI backend on PostgreSQL with pgvector. Used the Groq LLM API with Instructor to parse, score and tailor resumes, and LangGraph agents to automate multi-step tasks. Added semantic job matching with Model2Vec and Sentence-Transformers embeddings and a cross-encoder reranker, and exported tailored resumes to PDF and DOCX. Wrote job scrapers covering several job boards, including Workday, with background processing on Redis and arq workers. Added secure authentication with JWT, Bcrypt, and Google and GitHub OAuth, and integrated Gmail for outreach. Built a Chrome extension that shows match scores on job pages, fills application forms and tracks applications in one click. Also added a remote MCP server with OAuth 2.1. Containerized the stack with Docker Compose and Caddy, set up CI/CD with GitHub Actions, and added monitoring with Prometheus, Grafana and Sentry.",
     skills: ["Next.js", "React", "TypeScript", "Tailwind CSS", "FastAPI", "Python", "PostgreSQL", "pgvector", "SQLAlchemy", "Redis", "LLM", "Generative AI", "LangGraph", "NLP", "spaCy", "Sentence-Transformers", "JWT", "OAuth", "Bcrypt", "Docker", "GitHub Actions", "Prometheus", "Grafana", "Chrome Extension"],
     links: [
-      { label: "Live", url: "https://www.myjobatlas.site/" },
+      { label: "Live", url: "https://joinworkage.com/" },
       { label: "GitHub", url: "https://github.com/ProjectAtlas-Job" }
     ],
     startDate: new Date("2026-05-01"),
